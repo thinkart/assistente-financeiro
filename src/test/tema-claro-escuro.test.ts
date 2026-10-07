@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import postcss from 'postcss'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import tailwindConfig from '../../tailwind.config'
 
 interface PackageJson {
@@ -19,8 +19,7 @@ const packageJson = JSON.parse(
 ) as PackageJson
 
 const tailwindExtend = tailwindConfig.theme?.extend as unknown as
-  | TailwindExtend
-  | undefined
+  TailwindExtend | undefined
 
 describe('dependências do sistema de tema (AC-006, AC-007)', () => {
   it('declara lucide-react para os ícones do ThemeToggle', () => {
@@ -227,5 +226,99 @@ describe('tokens de tema no globals.css (AC-002)', () => {
     }
 
     expect(violations).toEqual([])
+  })
+})
+
+const html = readFileSync(join(process.cwd(), 'index.html'), 'utf8')
+const headContent = /<head>([\s\S]*?)<\/head>/.exec(html)?.[1] ?? ''
+const inlineScripts = [
+  ...headContent.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g),
+].map((match) => match[1])
+const antiFoucScript = inlineScripts.find((script) =>
+  script.includes('financas-theme'),
+)
+const moduleScriptIndex = html.indexOf('type="module"')
+
+const runAntiFouc = () => {
+  if (!antiFoucScript) {
+    throw new Error('script anti-FOUC não encontrado no index.html')
+  }
+  new Function(antiFoucScript)()
+}
+
+const stubPrefersDark = (matches: boolean) => {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(() => true),
+  }))
+}
+
+describe('script anti-FOUC no index.html (AC-003)', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    document.documentElement.classList.remove('dark')
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    document.documentElement.classList.remove('dark')
+  })
+
+  it('fica no <head> antes do bundle do app', () => {
+    expect(antiFoucScript).toBeDefined()
+    expect(moduleScriptIndex).toBeGreaterThan(-1)
+    expect(html.indexOf(antiFoucScript as string)).toBeLessThan(
+      moduleScriptIndex,
+    )
+  })
+
+  it('aplica dark quando o tema salvo é dark', () => {
+    localStorage.setItem('financas-theme', 'dark')
+    stubPrefersDark(false)
+
+    runAntiFouc()
+
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+  })
+
+  it('não aplica dark quando o tema salvo é light', () => {
+    localStorage.setItem('financas-theme', 'light')
+    stubPrefersDark(true)
+
+    runAntiFouc()
+
+    expect(document.documentElement.classList.contains('dark')).toBe(false)
+  })
+
+  it('segue prefers-color-scheme quando o tema é system', () => {
+    localStorage.setItem('financas-theme', 'system')
+    stubPrefersDark(true)
+
+    runAntiFouc()
+
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+  })
+
+  it('usa system como padrão quando não há tema salvo', () => {
+    stubPrefersDark(true)
+
+    runAntiFouc()
+
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+  })
+
+  it('trata valor inválido como system', () => {
+    localStorage.setItem('financas-theme', 'solar')
+    stubPrefersDark(true)
+
+    runAntiFouc()
+
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
   })
 })
