@@ -120,17 +120,17 @@ globalsRoot.walkRules((rule) => {
   })
 })
 
-const collectSourceFiles = (dir: string): string[] => {
-  const absoluteDir = join(process.cwd(), dir)
-  if (!existsSync(absoluteDir)) return []
+const collectSourceFiles = (dirOrFile: string): string[] => {
+  const absolutePath = join(process.cwd(), dirOrFile)
+  if (!existsSync(absolutePath)) return []
 
-  return readdirSync(absoluteDir).flatMap((entry) => {
-    const absoluteEntry = join(absoluteDir, entry)
-    if (statSync(absoluteEntry).isDirectory()) {
-      return collectSourceFiles(join(dir, entry))
-    }
-    return /\.(ts|tsx)$/.test(entry) ? [absoluteEntry] : []
-  })
+  if (!statSync(absolutePath).isDirectory()) {
+    return /\.(ts|tsx)$/.test(absolutePath) ? [absolutePath] : []
+  }
+
+  return readdirSync(absolutePath).flatMap((entry) =>
+    collectSourceFiles(join(dirOrFile, entry)),
+  )
 }
 
 const expectedLightVars: Record<string, string> = {
@@ -183,6 +183,8 @@ const appSourceFiles = [
   'src/components',
   'src/features',
   'src/pages',
+  'src/App.tsx',
+  'src/main.tsx',
 ].flatMap(collectSourceFiles)
 
 const forbiddenColorPatterns = [
