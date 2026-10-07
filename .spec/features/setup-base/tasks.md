@@ -4,7 +4,7 @@
 
 ## Ordem de Execução
 
-- [ ] **T-001:** Inicializar o projeto com Vite + React 18 + TypeScript (`package.json`, `vite.config.ts`, `index.html`, `src/main.tsx`, `src/App.tsx`) — *(cobre AC-001)*
+- [x] **T-001:** Inicializar o projeto com Vite + React 18 + TypeScript (`package.json`, `vite.config.ts`, `index.html`, `src/main.tsx`, `src/App.tsx`) — *(cobre AC-001)*
 - [ ] **T-002:** Configurar o alias `@/` → `src/` no `vite.config.ts` e no `tsconfig.app.json` — *(cobre AC-002)*
 - [ ] **T-003:** Configurar Tailwind CSS v3 (`tailwind.config.ts`, `postcss.config.js`, `src/styles/globals.css`) e aplicar utilitários no placeholder do App — *(cobre AC-003)*
 - [ ] **T-004:** Configurar ESLint (flat, TypeScript + react-hooks) e Prettier, com scripts `lint` e `format` — *(cobre AC-004)*
