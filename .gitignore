@@ -1,5 +1,7 @@
 node_modules
 dist
+/docs/
+/.opencode/
 .env
 .env.local
 .env.*.local
