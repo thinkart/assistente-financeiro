@@ -40,6 +40,21 @@ cp .env.example .env
 
 O arquivo `.env` é ignorado pelo Git; use sempre o `.env.example` como referência dos valores esperados.
 
+## API mockada (MSW)
+
+Com `VITE_USE_MOCK=true` (padrão do `.env.example`), **todas as chamadas são interceptadas pelo MSW** — nenhuma requisição real ao Flask é feita:
+
+```bash
+cp .env.example .env
+```
+
+- O worker é registrado por `public/mockServiceWorker.js` e iniciado em `src/main.tsx` (`src/mocks/browser.ts`).
+- Handlers em `src/mocks/handlers/` cobrem o contrato: auth (`POST /auth/register`, `POST /auth/login`, `GET /auth/me`), categorias (CRUD), transações (CRUD + filtros `startDate`, `endDate`, `categoryId`, `type`, `minAmount`, `maxAmount`) e relatórios (`GET /reports/summary`, `GET /reports/by-category`).
+- Dados fake em `src/mocks/data/` (8 categorias e 30 transações nos últimos 6 meses); usuário de demonstração: **demo@financas.dev / 123456**.
+- A latência simulada é de 300 ms em dev e 0 nos testes (`src/mocks/delay.ts`); token ausente/inválido nas rotas protegidas responde **401**.
+- Para apontar para a API real, defina `VITE_USE_MOCK=false` no `.env` — o Axios (`src/services/api.ts`) passa a usar `VITE_API_URL` (ex.: `http://127.0.0.1:5000`, docs em `/apidocs/`).
+- Nos testes, o MSW roda via `src/mocks/server.ts` com `onUnhandledRequest: 'error'`, garantindo que nenhuma chamada escape do contrato.
+
 ## Tema claro/escuro
 
 O app suporta os modos **Claro**, **Escuro** e **Sistema** (segue a preferência do sistema operacional), alternáveis pelo botão de sol/lua no header (`ThemeToggle`).
