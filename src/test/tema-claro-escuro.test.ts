@@ -45,6 +45,7 @@ describe('configuração do Tailwind (AC-001)', () => {
         'background',
         'foreground',
         'card',
+        'popover',
         'primary',
         'secondary',
         'muted',
@@ -62,6 +63,10 @@ describe('configuração do Tailwind (AC-001)', () => {
     expect(colors?.card).toEqual({
       DEFAULT: 'hsl(var(--card))',
       foreground: 'hsl(var(--card-foreground))',
+    })
+    expect(colors?.popover).toEqual({
+      DEFAULT: 'hsl(var(--popover))',
+      foreground: 'hsl(var(--popover-foreground))',
     })
     expect(colors?.primary).toEqual({
       DEFAULT: 'hsl(var(--primary))',
@@ -138,6 +143,8 @@ const expectedLightVars: Record<string, string> = {
   '--foreground': '222 47% 11%',
   '--card': '0 0% 100%',
   '--card-foreground': '222 47% 11%',
+  '--popover': '0 0% 100%',
+  '--popover-foreground': '222 47% 11%',
   '--primary': '221 83% 53%',
   '--primary-foreground': '210 40% 98%',
   '--secondary': '210 40% 96%',
@@ -161,6 +168,8 @@ const expectedDarkVars: Record<string, string> = {
   '--foreground': '210 40% 98%',
   '--card': '222 47% 10%',
   '--card-foreground': '210 40% 98%',
+  '--popover': '222 47% 10%',
+  '--popover-foreground': '210 40% 98%',
   '--primary': '217 91% 60%',
   '--primary-foreground': '222 47% 11%',
   '--secondary': '217 33% 17%',
