@@ -40,6 +40,16 @@ cp .env.example .env
 
 O arquivo `.env` é ignorado pelo Git; use sempre o `.env.example` como referência dos valores esperados.
 
+## Tema claro/escuro
+
+O app suporta os modos **Claro**, **Escuro** e **Sistema** (segue a preferência do sistema operacional), alternáveis pelo botão de sol/lua no header (`ThemeToggle`).
+
+- A escolha é persistida em `localStorage` na chave `financas-theme` e um valor inválido cai no modo `Sistema`.
+- O tema é aplicado pela classe `dark` no `<html>` (estratégia `class` do Tailwind).
+- Um script inline no `index.html` aplica o tema antes do bundle carregar, evitando o flash de tema errado (FOUC).
+- As cores são **tokens semânticos** definidos em `src/styles/globals.css` e mapeados no `tailwind.config.ts` — use apenas tokens como `bg-background`, `text-foreground`, `bg-card`, `border-border`, `text-income` e `text-expense`; nunca cores fixas (`bg-white`, `text-gray-900`, hex/rgb).
+- Os testes que cobrem o tema ficam em `src/test/tema-claro-escuro.test.ts`, `src/app/providers/ThemeProvider.test.tsx` e `src/components/ThemeToggle.test.tsx`.
+
 ## Estrutura
 
 ```

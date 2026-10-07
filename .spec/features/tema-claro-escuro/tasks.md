@@ -11,4 +11,4 @@
 - [x] **T-005:** Criar `src/app/providers/ThemeProvider.tsx` (`useTheme`), mock de `matchMedia` no setup de testes e testes de persistência/classe/system — *(cobre AC-004, AC-005)*
 - [x] **T-006:** Criar `src/components/ThemeToggle.tsx` (dropdown acessível com sol/lua) e testes — *(cobre AC-006)*
 - [x] **T-007:** Integrar ThemeProvider e fonte Inter no `src/main.tsx`, atualizar `src/App.tsx` (header + tokens) e `src/App.test.tsx` — *(cobre AC-002, AC-006, AC-007)*
-- [ ] **T-008:** Documentar o sistema de tema no `README.md` e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-008)*
+- [x] **T-008:** Documentar o sistema de tema no `README.md` e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-008)*

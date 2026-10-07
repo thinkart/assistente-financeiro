@@ -324,3 +324,20 @@ describe('script anti-FOUC no index.html (AC-003)', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(true)
   })
 })
+
+describe('documentação do tema no README (T-008)', () => {
+  const readme = readFileSync(join(process.cwd(), 'README.md'), 'utf8')
+
+  it('explica os modos, a persistência e o anti-FOUC', () => {
+    expect(readme).toContain('## Tema claro/escuro')
+    expect(readme).toContain('financas-theme')
+    expect(readme).toContain('ThemeToggle')
+    expect(readme).toContain('FOUC')
+  })
+
+  it('orienta o uso exclusivo de tokens semânticos', () => {
+    expect(readme).toContain('tokens semânticos')
+    expect(readme).toContain('bg-background')
+    expect(readme).toContain('text-foreground')
+  })
+})
