@@ -50,6 +50,20 @@ O app suporta os modos **Claro**, **Escuro** e **Sistema** (segue a preferência
 - As cores são **tokens semânticos** definidos em `src/styles/globals.css` e mapeados no `tailwind.config.ts` — use apenas tokens como `bg-background`, `text-foreground`, `bg-card`, `border-border`, `text-income` e `text-expense`; nunca cores fixas (`bg-white`, `text-gray-900`, hex/rgb).
 - Os testes que cobrem o tema ficam em `src/test/tema-claro-escuro.test.ts`, `src/app/providers/ThemeProvider.test.tsx` e `src/components/ThemeToggle.test.tsx`.
 
+## Design system
+
+Os componentes base vêm do [shadcn/ui](https://ui.shadcn.com) na versão compatível com Tailwind v3 (`shadcn@2.3.0`) e ficam em `src/components/ui/`:
+
+| Componente                                               | Arquivo                   |
+| -------------------------------------------------------- | ------------------------- |
+| Button, Input, Card, Dialog, Table, Dropdown Menu e Tabs | `src/components/ui/*.tsx` |
+
+- O `components.json` guarda a configuração do shadcn (aliases `@/components`, `@/components/ui` e `@/lib/utils`).
+- O utilitário `cn()` em `src/lib/utils.ts` combina `clsx` + `tailwind-merge` e é usado por todos os componentes.
+- Os componentes usam apenas **tokens semânticos** (`bg-card`, `bg-popover`, `text-muted-foreground`, `focus:bg-accent`, etc.); bordas usam o token global (`* { @apply border-border }` no `globals.css`).
+- Animações (abrir/fechar de Dialog e Dropdown) vêm do plugin `tailwindcss-animate`.
+- Para adicionar novos componentes: `npx shadcn@2.3.0 add <componente>` e ajuste qualquer cor fixa (ex.: `bg-black/80`) para tokens, mantendo o padrão do projeto.
+
 ## Estrutura
 
 ```
