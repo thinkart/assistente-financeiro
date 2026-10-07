@@ -5,7 +5,7 @@
 ## Ordem de Execução
 
 - [x] **T-001:** Adicionar `axios` e `msw` (dev) e inicializar o worker `public/mockServiceWorker.js` (`npx msw init public --save`) — *(cobre AC-001)*
-- [ ] **T-002:** Criar os tipos do contrato em `src/types/` — *(cobre AC-002)*
+- [x] **T-002:** Criar os tipos do contrato em `src/types/` — *(cobre AC-002)*
 - [ ] **T-003:** Criar os dados fake em `src/mocks/data/` (categorias + ~30 transações relativas à data atual) — *(cobre AC-003)*
 - [ ] **T-004:** Criar a infra MSW (`handlers/index.ts`, `server.ts`, `browser.ts`, `delay.ts`), integrar ao setup de testes e implementar os handlers de auth — *(cobre AC-004, AC-008, AC-009)*
 - [ ] **T-005:** Implementar os handlers de categorias (CRUD) e testes — *(cobre AC-005)*
