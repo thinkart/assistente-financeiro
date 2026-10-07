@@ -4,7 +4,7 @@
 
 ## Ordem de Execução
 
-- [ ] **T-001:** Adicionar dependências `lucide-react` e `@fontsource/inter` (`package.json`) — *(cobre AC-006, AC-007)*
+- [x] **T-001:** Adicionar dependências `lucide-react` e `@fontsource/inter` (`package.json`) — *(cobre AC-006, AC-007)*
 - [ ] **T-002:** Configurar `tailwind.config.ts` com `darkMode: 'class'`, tokens semânticos, `borderRadius` e `fontFamily.sans` (Inter) — *(cobre AC-001)*
 - [ ] **T-003:** Definir variáveis CSS de `:root` e `.dark` em `src/styles/globals.css` e aplicar defaults de body com tokens — *(cobre AC-002)*
 - [ ] **T-004:** Inserir script anti-FOUC no `<head>` do `index.html` e criar teste de conteúdo — *(cobre AC-003)*
