@@ -9,6 +9,9 @@ export const resetCategoryStore = () => {
   categoryStore = [...seedCategories]
 }
 
+export const getCategoryById = (id: string) =>
+  categoryStore.find((category) => category.id === id)
+
 interface CategoryBody {
   name?: unknown
   type?: unknown
