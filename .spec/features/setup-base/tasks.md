@@ -10,4 +10,4 @@
 - [x] **T-004:** Configurar ESLint (flat, TypeScript + react-hooks) e Prettier, com scripts `lint` e `format` — *(cobre AC-004)*
 - [x] **T-005:** Configurar Vitest + jsdom + Testing Library e criar teste de fumaça do App com referência ao AC — *(cobre AC-005)*
 - [x] **T-006:** Criar a estrutura de pastas `src/` do prompt.txt, `.env.example` e `.gitignore` (`.env`, `node_modules`, `dist`) — *(cobre AC-007, AC-008)*
-- [ ] **T-007:** Documentar comandos no `README.md` e validar `npm run build` — *(cobre AC-006)*
+- [x] **T-007:** Documentar comandos no `README.md` e validar `npm run build` — *(cobre AC-006)*
