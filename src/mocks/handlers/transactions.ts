@@ -10,6 +10,8 @@ export const resetTransactionStore = () => {
   transactionStore = [...seedTransactions]
 }
 
+export const getTransactions = () => [...transactionStore]
+
 interface TransactionBody {
   description?: unknown
   amount?: unknown
