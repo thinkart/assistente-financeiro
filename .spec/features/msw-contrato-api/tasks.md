@@ -11,5 +11,5 @@
 - [x] **T-005:** Implementar os handlers de categorias (CRUD) e testes — *(cobre AC-005)*
 - [x] **T-006:** Implementar os handlers de transações (filtros + CRUD) e testes — *(cobre AC-006)*
 - [x] **T-007:** Implementar os handlers de relatórios (summary/by-category) e testes — *(cobre AC-007)*
-- [ ] **T-008:** Criar `src/services/api.ts` (Axios) e o bootstrap condicional do worker no `main.tsx` e testes — *(cobre AC-001)*
+- [x] **T-008:** Criar `src/services/api.ts` (Axios) e o bootstrap condicional do worker no `main.tsx` e testes — *(cobre AC-001)*
 - [ ] **T-009:** Documentar o mock no `README.md` e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-010)*

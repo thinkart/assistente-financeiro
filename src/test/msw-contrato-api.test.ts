@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { isMockEnabled } from '@/mocks/config'
 
 interface PackageJson {
   dependencies?: Record<string, string>
@@ -30,5 +31,27 @@ describe('dependências e worker do MSW (AC-001)', () => {
 
     expect(existsSync(workerPath)).toBe(true)
     expect(readFileSync(workerPath, 'utf8').length).toBeGreaterThan(1000)
+  })
+})
+
+describe('interruptor do mock (AC-001)', () => {
+  it('só habilita o worker quando VITE_USE_MOCK é "true"', () => {
+    expect(isMockEnabled('true')).toBe(true)
+    expect(isMockEnabled('false')).toBe(false)
+    expect(isMockEnabled(undefined)).toBe(false)
+  })
+})
+
+describe('bootstrap do MSW no main.tsx (AC-001)', () => {
+  const mainSource = readFileSync(join(process.cwd(), 'src/main.tsx'), 'utf8')
+
+  it('inicializa o worker condicionalmente ao VITE_USE_MOCK', () => {
+    expect(mainSource).toContain('VITE_USE_MOCK')
+    expect(mainSource).toContain("import('@/mocks/browser')")
+    expect(mainSource).toContain('worker.start')
+  })
+
+  it('renderiza o app depois de habilitar o mock', () => {
+    expect(mainSource).toContain('enableMocking().then')
   })
 })
