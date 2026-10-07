@@ -1,5 +1,6 @@
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { join, relative } from 'node:path'
+import postcss from 'postcss'
 import { describe, expect, it } from 'vitest'
 import tailwindConfig from '../../tailwind.config'
 
@@ -100,5 +101,131 @@ describe('configuração do Tailwind (AC-001)', () => {
 
   it('define Inter como primeira fonte da família sans', () => {
     expect(tailwindExtend?.fontFamily?.sans?.[0]).toBe('Inter')
+  })
+})
+
+const globalsCss = readFileSync(
+  join(process.cwd(), 'src/styles/globals.css'),
+  'utf8',
+)
+const globalsRoot = postcss.parse(globalsCss)
+
+const cssVarsBySelector = new Map<string, Record<string, string>>()
+
+globalsRoot.walkRules((rule) => {
+  rule.walkDecls((decl) => {
+    if (!decl.prop.startsWith('--')) return
+    const vars = cssVarsBySelector.get(rule.selector) ?? {}
+    vars[decl.prop] = decl.value
+    cssVarsBySelector.set(rule.selector, vars)
+  })
+})
+
+const collectSourceFiles = (dir: string): string[] => {
+  const absoluteDir = join(process.cwd(), dir)
+  if (!existsSync(absoluteDir)) return []
+
+  return readdirSync(absoluteDir).flatMap((entry) => {
+    const absoluteEntry = join(absoluteDir, entry)
+    if (statSync(absoluteEntry).isDirectory()) {
+      return collectSourceFiles(join(dir, entry))
+    }
+    return /\.(ts|tsx)$/.test(entry) ? [absoluteEntry] : []
+  })
+}
+
+const expectedLightVars: Record<string, string> = {
+  '--background': '0 0% 100%',
+  '--foreground': '222 47% 11%',
+  '--card': '0 0% 100%',
+  '--card-foreground': '222 47% 11%',
+  '--primary': '221 83% 53%',
+  '--primary-foreground': '210 40% 98%',
+  '--secondary': '210 40% 96%',
+  '--secondary-foreground': '222 47% 11%',
+  '--muted': '210 40% 96%',
+  '--muted-foreground': '215 16% 47%',
+  '--accent': '210 40% 96%',
+  '--accent-foreground': '222 47% 11%',
+  '--destructive': '0 84% 60%',
+  '--destructive-foreground': '210 40% 98%',
+  '--border': '214 32% 91%',
+  '--input': '214 32% 91%',
+  '--ring': '221 83% 53%',
+  '--income': '142 71% 45%',
+  '--expense': '0 84% 60%',
+  '--radius': '0.75rem',
+}
+
+const expectedDarkVars: Record<string, string> = {
+  '--background': '222 47% 7%',
+  '--foreground': '210 40% 98%',
+  '--card': '222 47% 10%',
+  '--card-foreground': '210 40% 98%',
+  '--primary': '217 91% 60%',
+  '--primary-foreground': '222 47% 11%',
+  '--secondary': '217 33% 17%',
+  '--secondary-foreground': '210 40% 98%',
+  '--muted': '217 33% 17%',
+  '--muted-foreground': '215 20% 65%',
+  '--accent': '217 33% 17%',
+  '--accent-foreground': '210 40% 98%',
+  '--destructive': '0 63% 50%',
+  '--destructive-foreground': '210 40% 98%',
+  '--border': '217 33% 20%',
+  '--input': '217 33% 20%',
+  '--ring': '217 91% 60%',
+  '--income': '142 71% 55%',
+  '--expense': '0 72% 60%',
+}
+
+const appSourceFiles = [
+  'src/app',
+  'src/components',
+  'src/features',
+  'src/pages',
+].flatMap(collectSourceFiles)
+
+const forbiddenColorPatterns = [
+  /#[0-9a-fA-F]{3,8}\b/g,
+  /\b(?:rgba?|hsla?)\(/g,
+  /(?:bg|text|border|ring|fill|stroke|from|via|to)-(?:white|black|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)(?:-\d{2,3})?\b/g,
+]
+
+describe('tokens de tema no globals.css (AC-002)', () => {
+  it('define todas as variáveis do tema claro em :root', () => {
+    expect(cssVarsBySelector.get(':root')).toEqual(expectedLightVars)
+  })
+
+  it('define todas as variáveis do tema escuro em .dark', () => {
+    expect(cssVarsBySelector.get('.dark')).toEqual(expectedDarkVars)
+  })
+
+  it('aplica tokens semânticos como padrão do body', () => {
+    const applyParams: string[] = []
+    globalsRoot.walkRules('body', (rule) => {
+      rule.walkAtRules('apply', (atRule) => {
+        applyParams.push(...atRule.params.split(/\s+/))
+      })
+    })
+
+    expect(applyParams).toEqual(
+      expect.arrayContaining(['bg-background', 'text-foreground', 'font-sans']),
+    )
+  })
+
+  it('não usa cores fixas nos componentes, apenas tokens', () => {
+    const violations: string[] = []
+
+    for (const file of appSourceFiles) {
+      const content = readFileSync(file, 'utf8')
+      for (const pattern of forbiddenColorPatterns) {
+        for (const match of content.matchAll(pattern)) {
+          violations.push(`${relative(process.cwd(), file)}: ${match[0]}`)
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
   })
 })
