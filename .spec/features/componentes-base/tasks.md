@@ -11,6 +11,6 @@
 - [x] **T-005:** Incorporar `src/components/ui/card.tsx` e criar testes — *(cobre AC-005)*
 - [x] **T-006:** Incorporar `src/components/ui/dialog.tsx` com overlay tokenizado e criar testes — *(cobre AC-006, AC-010)*
 - [x] **T-007:** Incorporar `src/components/ui/table.tsx` e criar testes — *(cobre AC-007)*
-- [ ] **T-008:** Incorporar `src/components/ui/dropdown-menu.tsx` e criar testes — *(cobre AC-008)*
+- [x] **T-008:** Incorporar `src/components/ui/dropdown-menu.tsx` e criar testes — *(cobre AC-008)*
 - [ ] **T-009:** Incorporar `src/components/ui/tabs.tsx` e criar testes — *(cobre AC-009)*
 - [ ] **T-010:** Documentar o design system no `README.md` e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-010)*

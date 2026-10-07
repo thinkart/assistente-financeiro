@@ -81,7 +81,15 @@ describe('Table (AC-007)', () => {
   })
 
   it('mescla className customizada mantendo os padrões', () => {
-    const { container } = render(<Table className="max-w-md">tabela</Table>)
+    const { container } = render(
+      <Table className="max-w-md">
+        <TableBody>
+          <TableRow>
+            <TableCell>tabela</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>,
+    )
 
     const table = container.querySelector('table')
     expect(table?.className).toContain('max-w-md')
