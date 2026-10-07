@@ -93,3 +93,23 @@ describe('utilitário cn (AC-001)', () => {
     expect(cn('bg-background', 'bg-card')).toBe('bg-card')
   })
 })
+
+describe('documentação do design system no README (T-010)', () => {
+  const readme = readFileSync(join(process.cwd(), 'README.md'), 'utf8')
+
+  it('explica como o shadcn/ui está configurado', () => {
+    expect(readme).toContain('## Design system')
+    expect(readme).toContain('shadcn@2.3.0')
+    expect(readme).toContain('components.json')
+    expect(readme).toContain('src/lib/utils')
+    expect(readme).toContain('tailwindcss-animate')
+  })
+
+  it('lista o diretório e os componentes base', () => {
+    expect(readme).toContain('src/components/ui')
+    expect(readme).toContain('Button')
+    expect(readme).toContain('Dialog')
+    expect(readme).toContain('Dropdown Menu')
+    expect(readme).toContain('Tabs')
+  })
+})
