@@ -130,7 +130,9 @@ const collectSourceFiles = (dirOrFile: string): string[] => {
   if (!existsSync(absolutePath)) return []
 
   if (!statSync(absolutePath).isDirectory()) {
-    return /\.(ts|tsx)$/.test(absolutePath) ? [absolutePath] : []
+    const isSourceFile = /\.(ts|tsx)$/.test(absolutePath)
+    const isTestFile = /\.test\.(ts|tsx)$/.test(absolutePath)
+    return isSourceFile && !isTestFile ? [absolutePath] : []
   }
 
   return readdirSync(absolutePath).flatMap((entry) =>
