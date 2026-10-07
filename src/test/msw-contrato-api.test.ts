@@ -55,3 +55,21 @@ describe('bootstrap do MSW no main.tsx (AC-001)', () => {
     expect(mainSource).toContain('enableMocking().then')
   })
 })
+
+describe('documentação do mock no README (T-009)', () => {
+  const readme = readFileSync(join(process.cwd(), 'README.md'), 'utf8')
+
+  it('documenta como ligar/desligar o mock e apontar para a API real', () => {
+    expect(readme).toContain('## API mockada (MSW)')
+    expect(readme).toContain('VITE_USE_MOCK')
+    expect(readme).toContain('cp .env.example .env')
+    expect(readme).toContain('http://127.0.0.1:5000')
+  })
+
+  it('documenta credenciais de demonstração e endpoints mockados', () => {
+    expect(readme).toContain('demo@financas.dev')
+    expect(readme).toContain('/auth/login')
+    expect(readme).toContain('/reports/summary')
+    expect(readme).toContain('src/mocks/handlers')
+  })
+})
