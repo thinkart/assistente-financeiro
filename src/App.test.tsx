@@ -4,19 +4,22 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import App from '@/App'
+import { QueryProvider } from '@/app/providers/QueryProvider'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { setStoredToken } from '@/services/token'
 
 const renderApp = (initialEntry = '/') =>
   render(
-    <ThemeProvider>
-      <AuthProvider>
-        <MemoryRouter initialEntries={[initialEntry]}>
-          <App />
-        </MemoryRouter>
-      </AuthProvider>
-    </ThemeProvider>,
+    <QueryProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <MemoryRouter initialEntries={[initialEntry]}>
+            <App />
+          </MemoryRouter>
+        </AuthProvider>
+      </ThemeProvider>
+    </QueryProvider>,
   )
 
 describe('rotas do App (AC-001)', () => {
@@ -51,6 +54,16 @@ describe('rotas do App (AC-001)', () => {
 
     expect(
       await screen.findByText('Bem-vindo ao seu assistente financeiro'),
+    ).toBeInTheDocument()
+  })
+
+  it('renderiza a página de transações na rota /transacoes', async () => {
+    setStoredToken('mock-access-token')
+
+    renderApp('/transacoes')
+
+    expect(
+      await screen.findByText('Transações cadastradas'),
     ).toBeInTheDocument()
   })
 })

@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import type { Transaction, TransactionType } from '@/types'
+import type { PaymentMethod, Transaction, TransactionType } from '@/types'
 import { transactions as seedTransactions } from '../data'
 import { applyMockDelay } from '../delay'
 import { getCategoryById } from './categories'
@@ -16,6 +16,7 @@ interface TransactionBody {
   description?: unknown
   amount?: unknown
   type?: unknown
+  paymentMethod?: unknown
   date?: unknown
   categoryId?: unknown
 }
@@ -25,10 +26,17 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 const isTransactionType = (value: unknown): value is TransactionType =>
   value === 'income' || value === 'expense'
 
+const isPaymentMethod = (value: unknown): value is PaymentMethod =>
+  value === 'pix' ||
+  value === 'credito' ||
+  value === 'debito' ||
+  value === 'dinheiro' ||
+  value === 'boleto'
+
 const parseTransactionBody = (body: unknown) => {
   if (typeof body !== 'object' || body === null) return null
 
-  const { description, amount, type, date, categoryId } =
+  const { description, amount, type, paymentMethod, date, categoryId } =
     body as TransactionBody
 
   if (typeof description !== 'string' || description.trim() === '') return null
@@ -36,11 +44,19 @@ const parseTransactionBody = (body: unknown) => {
     return null
   }
   if (!isTransactionType(type)) return null
+  if (!isPaymentMethod(paymentMethod)) return null
   if (typeof date !== 'string' || !ISO_DATE.test(date)) return null
   if (typeof categoryId !== 'string' || !getCategoryById(categoryId))
     return null
 
-  return { description: description.trim(), amount, type, date, categoryId }
+  return {
+    description: description.trim(),
+    amount,
+    type,
+    paymentMethod,
+    date,
+    categoryId,
+  }
 }
 
 const parseAmountParam = (value: string | null) => {
@@ -55,6 +71,7 @@ const errorResponse = (status: number, message: string) =>
 const applyFilters = (
   items: Transaction[],
   filters: {
+    search?: string
     startDate?: string
     endDate?: string
     categoryId?: string
@@ -64,6 +81,12 @@ const applyFilters = (
   },
 ) =>
   items.filter((item) => {
+    if (
+      filters.search &&
+      !item.description.toLowerCase().includes(filters.search.toLowerCase())
+    ) {
+      return false
+    }
     if (filters.startDate && item.date < filters.startDate) return false
     if (filters.endDate && item.date > filters.endDate) return false
     if (filters.categoryId && item.categoryId !== filters.categoryId) {
@@ -87,6 +110,7 @@ export const transactionHandlers = [
     const typeParam = url.searchParams.get('type')
 
     const filtered = applyFilters(transactionStore, {
+      search: url.searchParams.get('search')?.trim() || undefined,
       startDate: url.searchParams.get('startDate') ?? undefined,
       endDate: url.searchParams.get('endDate') ?? undefined,
       categoryId: url.searchParams.get('categoryId') ?? undefined,
@@ -107,7 +131,7 @@ export const transactionHandlers = [
     if (!parsed) {
       return errorResponse(
         400,
-        'Dados inválidos: informe descrição, valor positivo, tipo, data (YYYY-MM-DD) e categoria existente',
+        'Dados inválidos: informe descrição, valor positivo, tipo, método de pagamento, data (YYYY-MM-DD) e categoria existente',
       )
     }
 
@@ -130,7 +154,7 @@ export const transactionHandlers = [
     if (!parsed) {
       return errorResponse(
         400,
-        'Dados inválidos: informe descrição, valor positivo, tipo, data (YYYY-MM-DD) e categoria existente',
+        'Dados inválidos: informe descrição, valor positivo, tipo, método de pagamento, data (YYYY-MM-DD) e categoria existente',
       )
     }
 
