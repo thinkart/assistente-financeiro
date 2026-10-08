@@ -10,7 +10,7 @@
 - [x] **T-004:** Criar os hooks React Query de categorias (`use-categories.ts`) e refatorar a `TransactionsPage` para `useCategories`, com testes — *(cobre AC-003)*
 - [x] **T-005:** Criar `src/features/categories/colors.ts` (mapa + fallback determinístico) e o `CategoryBadge`, com testes — *(cobre AC-005)*
 - [x] **T-006:** Aplicar o `CategoryBadge` na `TransactionsTable` (desktop e mobile), ajustando testes — *(cobre AC-009)*
-- [ ] **T-007:** Criar o schema zod da categoria (`src/features/categories/schemas.ts`) e testes — *(cobre AC-007)*
+- [x] **T-007:** Criar o schema zod da categoria (`src/features/categories/schemas.ts`) e testes — *(cobre AC-007)*
 - [ ] **T-008:** Criar o `CategoryForm` em modal (criar/editar) e testes — *(cobre AC-007)*
 - [ ] **T-009:** Criar o `DeleteCategoryDialog` (confirmação + mensagem de bloqueio) e testes — *(cobre AC-008)*
 - [ ] **T-010:** Criar a `CategoriesPage` (lista, modais, estados loading/erro/vazio e toasts), ligar a rota `/categorias` e testes — *(cobre AC-004, AC-006, AC-008)*
