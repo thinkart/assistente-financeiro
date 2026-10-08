@@ -21,3 +21,5 @@ export interface TransactionFilters {
   minAmount?: number
   maxAmount?: number
 }
+
+export type TransactionInput = Omit<Transaction, 'id'>
