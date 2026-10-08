@@ -77,6 +77,16 @@ A rota `/transacoes` (área privada) entrega o CRUD completo:
 - Estados de loading, erro (com "Tentar novamente") e vazio; feedback via toasts (Sonner).
 - Dados via **React Query** (`src/features/transactions/use-transactions.ts`) consumindo os serviços de `src/services/`.
 
+## Categorias
+
+A rota `/categorias` (área privada) entrega o CRUD de categorias:
+
+- Lista com **badge colorido (Nome), Tipo e Ações (Editar/Excluir)** em tabela no desktop e cards no mobile.
+- Modal de criar/editar (Nome + Tipo Receita/Despesa) com validação zod e toasts de sucesso/erro.
+- **Exclusão protegida**: categorias **em uso** por transações não podem ser excluídas — o mock responde 400 ("Categoria em uso por N transação(ões)") e o diálogo exibe a mensagem.
+- Cores: 8 tokens semânticos (`--category-1..8` no `globals.css`/Tailwind) resolvidos de forma determinística em `src/features/categories/colors.ts` (mapa + fallback por hash) e exibidos via `CategoryBadge` — também aplicados na tabela de transações.
+- Estados de loading, erro (com "Tentar novamente") e vazio.
+
 ## Tema claro/escuro
 
 O app suporta os modos **Claro**, **Escuro** e **Sistema** (segue a preferência do sistema operacional), alternáveis pelo botão de sol/lua no header (`ThemeToggle`).
