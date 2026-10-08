@@ -5,3 +5,5 @@ export interface Category {
   name: string
   type: TransactionType
 }
+
+export type CategoryInput = Omit<Category, 'id'>
