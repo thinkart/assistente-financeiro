@@ -13,6 +13,6 @@
 - [x] **T-007:** Configurar as rotas no `App`/`main.tsx` (`/login`, `/cadastro`, área privada e catch-all) e atualizar os testes de App — *(cobre AC-001)*
 - [x] **T-008:** Criar a `LoginPage` (form RHF+zod, ThemeToggle, erro 401, redirect) e testes — *(cobre AC-006, AC-009)*
 - [x] **T-009:** Criar a `RegisterPage` (form fiel ao wireframe, validações, Limpar) e testes — *(cobre AC-007, AC-009)*
-- [ ] **T-010:** Criar `AppLayout` (header com usuário/ThemeToggle/Sair + sidebar) e `DashboardPage` placeholder, com testes — *(cobre AC-009)*
+- [x] **T-010:** Criar `AppLayout` (header com usuário/ThemeToggle/Sair + sidebar) e `DashboardPage` placeholder, com testes — *(cobre AC-009)*
 - [ ] **T-011:** Integrar o `AppToaster` (Sonner) com tema dinâmico e feedback em login/cadastro, com testes — *(cobre AC-010)*
 - [ ] **T-012:** Atualizar o `README.md` (rotas, credenciais demo) e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-010)*

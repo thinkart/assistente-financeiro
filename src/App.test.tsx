@@ -49,7 +49,9 @@ describe('rotas do App (AC-001)', () => {
 
     renderApp('/')
 
-    expect(await screen.findByText('Área privada')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Bem-vindo ao seu assistente financeiro'),
+    ).toBeInTheDocument()
   })
 })
 

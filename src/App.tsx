@@ -1,5 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { AppLayout } from '@/components/AppLayout'
 import { RequireAuth } from '@/features/auth/RequireAuth'
+import { DashboardPage } from '@/pages/DashboardPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 
@@ -10,7 +12,9 @@ function App() {
       <Route path="/cadastro" element={<RegisterPage />} />
 
       <Route element={<RequireAuth />}>
-        <Route path="/" element={<div>Área privada</div>} />
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<DashboardPage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
