@@ -23,3 +23,19 @@ describe('QueryProvider na raiz (AC-001)', () => {
     expect(mainSource).toContain('QueryProvider')
   })
 })
+
+describe('documentação da feature de transações no README (T-011)', () => {
+  const readme = readFileSync(join(process.cwd(), 'README.md'), 'utf8')
+
+  it('documenta a rota, os filtros e o fluxo de CRUD', () => {
+    expect(readme).toContain('## Transações')
+    expect(readme).toContain('/transacoes')
+    expect(readme).toContain('Aplicar filtros')
+    expect(readme).toContain('Salvar e adicionar outra')
+  })
+
+  it('documenta a paginação e o estado via React Query', () => {
+    expect(readme).toContain('React Query')
+    expect(readme).toContain('10 itens')
+  })
+})

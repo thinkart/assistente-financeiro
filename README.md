@@ -66,6 +66,17 @@ Rotas e fluxo de sessão:
 - Toasts de feedback (Sonner) respeitam o tema claro/escuro.
 - Testes do fluxo em `src/features/auth/` e `src/pages/`.
 
+## Transações
+
+A rota `/transacoes` (área privada) entrega o CRUD completo:
+
+- Lista em tabela no desktop e em cards no mobile (≤720px), com linhas zebradas e valores com sinal (`text-income`/`text-expense`).
+- Filtros: **Buscar** (descrição), **Tipo**, **Categoria** e **Período** (De/Até), com botão **Aplicar filtros**; paginação client-side de **10 itens** (Anterior/Próxima).
+- **Nova transação** abre um modal (Descrição, Valor, Tipo, Categoria, Método de pagamento, Data e Repetição — por enquanto apenas "Não repetir") com **Salvar**, **Salvar e adicionar outra** e **Cancelar**.
+- **Editar** abre o mesmo modal pré-preenchido; **Excluir** pede confirmação em diálogo.
+- Estados de loading, erro (com "Tentar novamente") e vazio; feedback via toasts (Sonner).
+- Dados via **React Query** (`src/features/transactions/use-transactions.ts`) consumindo os serviços de `src/services/`.
+
 ## Tema claro/escuro
 
 O app suporta os modos **Claro**, **Escuro** e **Sistema** (segue a preferência do sistema operacional), alternáveis pelo botão de sol/lua no header (`ThemeToggle`).
