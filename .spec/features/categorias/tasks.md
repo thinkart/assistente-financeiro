@@ -5,7 +5,7 @@
 ## Ordem de Execução
 
 - [x] **T-001:** Adicionar os tokens `--category-1..8` em `globals.css`/`tailwind.config.ts` e atualizar os testes exatos do tema — *(cobre AC-001)*
-- [ ] **T-002:** Bloquear `DELETE /categories/:id` em uso (400 com contagem), atualizando handlers e testes do contrato — *(cobre AC-002)*
+- [x] **T-002:** Bloquear `DELETE /categories/:id` em uso (400 com contagem), atualizando handlers e testes do contrato — *(cobre AC-002)*
 - [ ] **T-003:** Adicionar `CategoryInput` aos tipos e criar/atualizar os serviços de categoria, com testes — *(cobre AC-003)*
 - [ ] **T-004:** Criar os hooks React Query de categorias (`use-categories.ts`) e refatorar a `TransactionsPage` para `useCategories`, com testes — *(cobre AC-003)*
 - [ ] **T-005:** Criar `src/features/categories/colors.ts` (mapa + fallback determinístico) e o `CategoryBadge`, com testes — *(cobre AC-005)*

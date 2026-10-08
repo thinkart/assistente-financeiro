@@ -93,15 +93,35 @@ describe('handlers de categorias (AC-005)', () => {
     expect(response.status).toBe(400)
   })
 
-  it('remove uma categoria com 204', async () => {
-    const response = await fetch(`${API_URL}/categories/educacao`, {
+  it('remove uma categoria sem vínculos com 204', async () => {
+    const createResponse = await sendJson('POST', '/categories', {
+      name: 'Pets',
+      type: 'expense',
+    })
+    const created = (await createResponse.json()) as Category
+
+    const response = await fetch(`${API_URL}/categories/${created.id}`, {
       method: 'DELETE',
     })
 
     expect(response.status).toBe(204)
 
     const { body } = await getCategories()
-    expect(body.some((category) => category.id === 'educacao')).toBe(false)
+    expect(body.some((category) => category.id === created.id)).toBe(false)
+  })
+
+  it('bloqueia a remoção de categoria em uso com 400', async () => {
+    const response = await fetch(`${API_URL}/categories/educacao`, {
+      method: 'DELETE',
+    })
+
+    expect(response.status).toBe(400)
+
+    const body = (await response.json()) as { message: string }
+    expect(body.message).toMatch(/em uso/i)
+
+    const { body: categories } = await getCategories()
+    expect(categories.some((category) => category.id === 'educacao')).toBe(true)
   })
 
   it('retorna 404 ao remover categoria inexistente', async () => {
