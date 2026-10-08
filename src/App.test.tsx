@@ -4,23 +4,28 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import App from '@/App'
+import { ThemeProvider } from '@/app/providers/ThemeProvider'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { setStoredToken } from '@/services/token'
 
 const renderApp = (initialEntry = '/') =>
   render(
-    <AuthProvider>
-      <MemoryRouter initialEntries={[initialEntry]}>
-        <App />
-      </MemoryRouter>
-    </AuthProvider>,
+    <ThemeProvider>
+      <AuthProvider>
+        <MemoryRouter initialEntries={[initialEntry]}>
+          <App />
+        </MemoryRouter>
+      </AuthProvider>
+    </ThemeProvider>,
   )
 
 describe('rotas do App (AC-001)', () => {
   it('redireciona a área privada para /login quando não há sessão', async () => {
     renderApp('/')
 
-    expect(await screen.findByText('Página de login')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('button', { name: 'Entrar' }),
+    ).toBeInTheDocument()
   })
 
   it('renderiza a página de cadastro em /cadastro', () => {
@@ -32,7 +37,9 @@ describe('rotas do App (AC-001)', () => {
   it('redireciona rotas desconhecidas para a área privada (e daí para o login)', async () => {
     renderApp('/rota-inexistente')
 
-    expect(await screen.findByText('Página de login')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('button', { name: 'Entrar' }),
+    ).toBeInTheDocument()
   })
 
   it('mostra a área privada quando há sessão válida', async () => {
