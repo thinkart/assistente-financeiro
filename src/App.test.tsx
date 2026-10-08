@@ -31,7 +31,9 @@ describe('rotas do App (AC-001)', () => {
   it('renderiza a página de cadastro em /cadastro', () => {
     renderApp('/cadastro')
 
-    expect(screen.getByText('Página de cadastro')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Criar conta' }),
+    ).toBeInTheDocument()
   })
 
   it('redireciona rotas desconhecidas para a área privada (e daí para o login)', async () => {
