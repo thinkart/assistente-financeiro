@@ -19,6 +19,8 @@ const users: StoredUser[] = [
   },
 ]
 
+let sessionUserId = 'u-demo'
+
 const toPublicUser = ({ id, name, email, cpf, phone }: StoredUser): User => ({
   id,
   name,
@@ -103,6 +105,8 @@ export const authHandlers = [
       return errorResponse(401, 'Credenciais inválidas')
     }
 
+    sessionUserId = user.id
+
     const auth: AuthResponse = {
       access_token: MOCK_ACCESS_TOKEN,
       token_type: 'Bearer',
@@ -121,6 +125,11 @@ export const authHandlers = [
       return errorResponse(401, 'Token inválido ou ausente')
     }
 
-    return HttpResponse.json(toPublicUser(users[0]))
+    const user = users.find((candidate) => candidate.id === sessionUserId)
+    if (!user) {
+      return errorResponse(401, 'Sessão inválida')
+    }
+
+    return HttpResponse.json(toPublicUser(user))
   }),
 ]
