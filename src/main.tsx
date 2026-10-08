@@ -6,6 +6,7 @@ import '@fontsource/inter/500.css'
 import '@fontsource/inter/600.css'
 import '@fontsource/inter/700.css'
 import App from '@/App'
+import { QueryProvider } from '@/app/providers/QueryProvider'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
 import { AppToaster } from '@/components/AppToaster'
 import { AuthProvider } from '@/features/auth/AuthProvider'
@@ -23,12 +24,14 @@ enableMocking().then(() => {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <BrowserRouter>
-        <ThemeProvider>
-          <AppToaster />
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider>
+            <AppToaster />
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </ThemeProvider>
+        </QueryProvider>
       </BrowserRouter>
     </StrictMode>,
   )
