@@ -9,7 +9,7 @@
 - [x] **T-003:** Criar os serviços `src/services/transactions.ts` e `src/services/categories.ts` (tipados) e testes — *(cobre AC-003)*
 - [x] **T-004:** Criar os hooks React Query (`use-transactions.ts`) com invalidação de cache e testes — *(cobre AC-003)*
 - [x] **T-005:** Criar o schema zod do formulário de transação (`src/features/transactions/schemas.ts`) e testes — *(cobre AC-008)*
-- [ ] **T-006:** Criar a `TransactionsTable` (tabela + cards no mobile) e testes — *(cobre AC-005)*
+- [x] **T-006:** Criar a `TransactionsTable` (tabela + cards no mobile) e testes — *(cobre AC-005)*
 - [ ] **T-007:** Criar a `FiltersBar` (Buscar, Tipo, Categoria, Período, Aplicar filtros) e testes — *(cobre AC-006)*
 - [ ] **T-008:** Criar o `TransactionForm` em modal (criar/editar/salvar e adicionar outra) e testes — *(cobre AC-008)*
 - [ ] **T-009:** Criar o `DeleteTransactionDialog` (confirmação de exclusão) e testes — *(cobre AC-009)*
