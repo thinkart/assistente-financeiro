@@ -55,6 +55,17 @@ cp .env.example .env
 - Para apontar para a API real, defina `VITE_USE_MOCK=false` no `.env` — o Axios (`src/services/api.ts`) passa a usar `VITE_API_URL` (ex.: `http://127.0.0.1:5000`, docs em `/apidocs/`).
 - Nos testes, o MSW roda via `src/mocks/server.ts` com `onUnhandledRequest: 'error'`, garantindo que nenhuma chamada escape do contrato.
 
+## Autenticação
+
+Rotas e fluxo de sessão:
+
+- `/login` e `/cadastro` são públicas; a área privada (`/`) exige sessão e redireciona para `/login` preservando a rota de origem (`RequireAuth`).
+- O token fica em `localStorage` na chave `financas-token`; no boot, a sessão é restaurada via `GET /auth/me`.
+- O Axios anexa `Authorization: Bearer <token>` e, em **401** de rota autenticada, limpa a sessão e volta ao login.
+- Usuário de demonstração: **demo@financas.dev / 123456**.
+- Toasts de feedback (Sonner) respeitam o tema claro/escuro.
+- Testes do fluxo em `src/features/auth/` e `src/pages/`.
+
 ## Tema claro/escuro
 
 O app suporta os modos **Claro**, **Escuro** e **Sistema** (segue a preferência do sistema operacional), alternáveis pelo botão de sol/lua no header (`ThemeToggle`).

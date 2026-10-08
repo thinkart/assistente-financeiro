@@ -3,6 +3,7 @@ import type {
   AuthResponse,
   Category,
   CategoryReport,
+  RegisterPayload,
   SummaryReport,
   Transaction,
   TransactionFilters,
@@ -12,13 +13,29 @@ import type {
 
 describe('tipos do contrato da API (AC-002)', () => {
   it('permite montar um usuário e uma resposta de autenticação', () => {
-    const user: User = { id: 'u1', name: 'Demo', email: 'demo@financas.dev' }
+    const user: User = {
+      id: 'u1',
+      name: 'Demo',
+      email: 'demo@financas.dev',
+      cpf: '12345678900',
+      phone: '(11) 99999-0000',
+    }
+    const register: RegisterPayload = {
+      name: 'Demo',
+      cpf: '12345678900',
+      email: 'demo@financas.dev',
+      phone: '(11) 99999-0000',
+      password: '123456',
+    }
     const auth: AuthResponse = {
       access_token: 'mock-access-token',
       token_type: 'Bearer',
     }
 
     expect(user.email).toBe('demo@financas.dev')
+    expect(user.cpf).toBe('12345678900')
+    expect(user.phone).toBe('(11) 99999-0000')
+    expect(register.password).toBe('123456')
     expect(auth.token_type).toBe('Bearer')
   })
 
