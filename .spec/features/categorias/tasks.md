@@ -13,5 +13,5 @@
 - [x] **T-007:** Criar o schema zod da categoria (`src/features/categories/schemas.ts`) e testes — *(cobre AC-007)*
 - [x] **T-008:** Criar o `CategoryForm` em modal (criar/editar) e testes — *(cobre AC-007)*
 - [x] **T-009:** Criar o `DeleteCategoryDialog` (confirmação + mensagem de bloqueio) e testes — *(cobre AC-008)*
-- [ ] **T-010:** Criar a `CategoriesPage` (lista, modais, estados loading/erro/vazio e toasts), ligar a rota `/categorias` e testes — *(cobre AC-004, AC-006, AC-008)*
+- [x] **T-010:** Criar a `CategoriesPage` (lista, modais, estados loading/erro/vazio e toasts), ligar a rota `/categorias` e testes — *(cobre AC-004, AC-006, AC-008)*
 - [ ] **T-011:** Atualizar o `README.md` (seção Categorias) e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-010)*

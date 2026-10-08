@@ -66,6 +66,16 @@ describe('rotas do App (AC-001)', () => {
       await screen.findByText('Transações cadastradas'),
     ).toBeInTheDocument()
   })
+
+  it('renderiza a página de categorias na rota /categorias', async () => {
+    setStoredToken('mock-access-token')
+
+    renderApp('/categorias')
+
+    expect(
+      await screen.findByRole('heading', { name: 'Categorias' }),
+    ).toBeInTheDocument()
+  })
 })
 
 describe('main.tsx', () => {
