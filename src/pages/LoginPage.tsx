@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import {
@@ -41,9 +42,11 @@ export function LoginPage() {
 
     try {
       await signIn(data)
+      toast.success('Login realizado com sucesso!')
       navigate(from, { replace: true })
     } catch {
       setSubmitError('E-mail ou senha inválidos')
+      toast.error('Não foi possível entrar. Confira e-mail e senha.')
     }
   }
 

@@ -56,10 +56,11 @@ describe('rotas do App (AC-001)', () => {
 })
 
 describe('main.tsx', () => {
-  it('provê tema, roteador e sessão na raiz (AC-007, AC-001)', () => {
+  it('provê tema, toaster, roteador e sessão na raiz (AC-007, AC-001, AC-010)', () => {
     const mainSource = readFileSync(join(process.cwd(), 'src/main.tsx'), 'utf8')
 
     expect(mainSource).toContain('ThemeProvider')
+    expect(mainSource).toContain('AppToaster')
     expect(mainSource).toContain('BrowserRouter')
     expect(mainSource).toContain('AuthProvider')
     expect(mainSource).toContain('@fontsource/inter')

@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
+import { AppToaster } from '@/components/AppToaster'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { getStoredToken } from '@/services/token'
 import { RegisterPage } from './RegisterPage'
@@ -9,6 +10,7 @@ import { RegisterPage } from './RegisterPage'
 const renderRegister = () =>
   render(
     <ThemeProvider>
+      <AppToaster />
       <AuthProvider>
         <MemoryRouter initialEntries={['/cadastro']}>
           <Routes>
@@ -99,6 +101,9 @@ describe('RegisterPage (AC-007)', () => {
     submit()
 
     expect(await screen.findByText('Início')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Conta criada com sucesso!'),
+    ).toBeInTheDocument()
     expect(getStoredToken()).toBe('mock-access-token')
   })
 
@@ -110,6 +115,9 @@ describe('RegisterPage (AC-007)', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'E-mail já cadastrado',
     )
+    expect(
+      await screen.findByText('Não foi possível criar a conta'),
+    ).toBeInTheDocument()
     expect(getStoredToken()).toBeNull()
   })
 

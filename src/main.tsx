@@ -7,6 +7,7 @@ import '@fontsource/inter/600.css'
 import '@fontsource/inter/700.css'
 import App from '@/App'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
+import { AppToaster } from '@/components/AppToaster'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { isMockEnabled } from '@/mocks/config'
 import '@/styles/globals.css'
@@ -23,6 +24,7 @@ enableMocking().then(() => {
     <StrictMode>
       <BrowserRouter>
         <ThemeProvider>
+          <AppToaster />
           <AuthProvider>
             <App />
           </AuthProvider>

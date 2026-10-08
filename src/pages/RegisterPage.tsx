@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import {
@@ -75,6 +76,7 @@ export function RegisterPage() {
         phone: data.phone,
         password: data.password,
       })
+      toast.success('Conta criada com sucesso!')
       navigate('/', { replace: true })
     } catch (error) {
       const message =
@@ -84,6 +86,7 @@ export function RegisterPage() {
           : 'Não foi possível criar a conta'
 
       setSubmitError(message)
+      toast.error('Não foi possível criar a conta')
     }
   }
 

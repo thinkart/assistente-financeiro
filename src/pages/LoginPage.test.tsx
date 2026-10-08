@@ -3,6 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
+import { AppToaster } from '@/components/AppToaster'
 import { getStoredToken } from '@/services/token'
 import { LoginPage } from './LoginPage'
 
@@ -11,6 +12,7 @@ type InitialEntry = string | { pathname: string; state?: unknown }
 const renderLogin = (initialEntry: InitialEntry = '/login') =>
   render(
     <ThemeProvider>
+      <AppToaster />
       <AuthProvider>
         <MemoryRouter initialEntries={[initialEntry]}>
           <Routes>
@@ -76,6 +78,11 @@ describe('LoginPage (AC-006)', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'E-mail ou senha inválidos',
     )
+    expect(
+      await screen.findByText(
+        'Não foi possível entrar. Confira e-mail e senha.',
+      ),
+    ).toBeInTheDocument()
     expect(getStoredToken()).toBeNull()
   })
 
@@ -89,6 +96,9 @@ describe('LoginPage (AC-006)', () => {
     submit()
 
     expect(await screen.findByText('Transações')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Login realizado com sucesso!'),
+    ).toBeInTheDocument()
     expect(getStoredToken()).toBe('mock-access-token')
   })
 
