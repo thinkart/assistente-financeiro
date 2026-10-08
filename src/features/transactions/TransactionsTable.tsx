@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { CategoryBadge } from '@/features/categories/CategoryBadge'
 import { formatCurrency, formatDate } from '@/utils/format'
 import type { Category, Transaction, TransactionType } from '@/types'
 import { transactionTypeOptions } from './schemas'
@@ -34,9 +35,18 @@ export function TransactionsTable({
   onEdit,
   onDelete,
 }: TransactionsTableProps) {
-  const categoryNameOf = (categoryId: string) =>
-    categories.find((category) => category.id === categoryId)?.name ??
-    'Sem categoria'
+  const categoryOf = (categoryId: string) =>
+    categories.find((category) => category.id === categoryId)
+
+  const renderCategory = (categoryId: string) => {
+    const category = categoryOf(categoryId)
+
+    return category ? (
+      <CategoryBadge categoryId={category.id} name={category.name} />
+    ) : (
+      'Sem categoria'
+    )
+  }
 
   return (
     <div>
@@ -61,7 +71,7 @@ export function TransactionsTable({
                 <TableCell className="font-medium">
                   {transaction.description}
                 </TableCell>
-                <TableCell>{categoryNameOf(transaction.categoryId)}</TableCell>
+                <TableCell>{renderCategory(transaction.categoryId)}</TableCell>
                 <TableCell>{typeLabelOf(transaction.type)}</TableCell>
                 <TableCell className={amountClassOf(transaction.type)}>
                   {signedAmount(transaction)}
@@ -117,7 +127,7 @@ export function TransactionsTable({
                   </dd>
                   <dt>Categoria</dt>
                   <dd className="text-foreground">
-                    {categoryNameOf(transaction.categoryId)}
+                    {renderCategory(transaction.categoryId)}
                   </dd>
                   <dt>Tipo</dt>
                   <dd className="text-foreground">

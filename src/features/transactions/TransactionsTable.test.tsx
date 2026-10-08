@@ -137,4 +137,24 @@ describe('TransactionsTable (AC-005)', () => {
 
     expect(onEdit).toHaveBeenCalledWith(transactions[1])
   })
+
+  it('renderiza badges coloridos de categoria e mantém o fallback sem cor', () => {
+    renderTable()
+
+    const table = screen.getByRole('table')
+    expect(within(table).getByText('Alimentação').className).toContain(
+      'text-category-3',
+    )
+
+    const list = screen.getByRole('list', {
+      name: 'Lista de transações (mobile)',
+    })
+    expect(within(list).getByText('Salário').className).toContain(
+      'text-category-2',
+    )
+
+    expect(within(table).getByText('Sem categoria').className).not.toMatch(
+      /text-category-\d/,
+    )
+  })
 })
