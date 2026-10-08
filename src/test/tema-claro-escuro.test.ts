@@ -56,6 +56,14 @@ describe('configuração do Tailwind (AC-001)', () => {
         'ring',
         'income',
         'expense',
+        'category-1',
+        'category-2',
+        'category-3',
+        'category-4',
+        'category-5',
+        'category-6',
+        'category-7',
+        'category-8',
       ]),
     )
     expect(colors?.background).toBe('hsl(var(--background))')
@@ -93,6 +101,19 @@ describe('configuração do Tailwind (AC-001)', () => {
     expect(colors?.ring).toBe('hsl(var(--ring))')
     expect(colors?.income).toBe('hsl(var(--income))')
     expect(colors?.expense).toBe('hsl(var(--expense))')
+
+    for (const token of [
+      'category-1',
+      'category-2',
+      'category-3',
+      'category-4',
+      'category-5',
+      'category-6',
+      'category-7',
+      'category-8',
+    ]) {
+      expect(colors?.[token]).toBe(`hsl(var(--${token}))`)
+    }
   })
 
   it('mapeia o borderRadius para a variável --radius', () => {
@@ -162,6 +183,14 @@ const expectedLightVars: Record<string, string> = {
   '--ring': '221 83% 53%',
   '--income': '142 71% 45%',
   '--expense': '0 84% 60%',
+  '--category-1': '221 83% 53%',
+  '--category-2': '142 71% 45%',
+  '--category-3': '38 92% 50%',
+  '--category-4': '262 83% 58%',
+  '--category-5': '199 89% 48%',
+  '--category-6': '330 81% 60%',
+  '--category-7': '239 84% 67%',
+  '--category-8': '173 80% 40%',
   '--radius': '0.75rem',
 }
 
@@ -187,6 +216,14 @@ const expectedDarkVars: Record<string, string> = {
   '--ring': '217 91% 60%',
   '--income': '142 71% 55%',
   '--expense': '0 72% 60%',
+  '--category-1': '217 91% 60%',
+  '--category-2': '142 71% 55%',
+  '--category-3': '43 96% 56%',
+  '--category-4': '263 85% 65%',
+  '--category-5': '199 89% 60%',
+  '--category-6': '330 81% 65%',
+  '--category-7': '234 89% 74%',
+  '--category-8': '172 66% 50%',
 }
 
 const appSourceFiles = [

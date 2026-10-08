@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw'
 import type { Category, TransactionType } from '@/types'
 import { categories as seedCategories } from '../data'
 import { applyMockDelay } from '../delay'
+import { getTransactions } from './transactions'
 
 let categoryStore: Category[] = [...seedCategories]
 
@@ -87,6 +88,16 @@ export const categoryHandlers = [
     const exists = categoryStore.some((category) => category.id === id)
     if (!exists) {
       return errorResponse(404, 'Categoria não encontrada')
+    }
+
+    const usageCount = getTransactions().filter(
+      (transaction) => transaction.categoryId === id,
+    ).length
+    if (usageCount > 0) {
+      return errorResponse(
+        400,
+        `Categoria em uso por ${usageCount} transação(ões)`,
+      )
     }
 
     categoryStore = categoryStore.filter((category) => category.id !== id)
