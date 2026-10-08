@@ -18,7 +18,9 @@ describe('handlers de auth (AC-004)', () => {
   it('registra um usuário novo com 201', async () => {
     const response = await postJson('/auth/register', {
       name: 'Ana Souza',
+      cpf: '98765432100',
       email: `ana-${Date.now()}@financas.dev`,
+      phone: '(11) 98888-7777',
       password: '123456',
     })
 
@@ -28,15 +30,33 @@ describe('handlers de auth (AC-004)', () => {
       id: string
       name: string
       email: string
+      cpf: string
+      phone: string
     }
     expect(body.id).toBeTruthy()
     expect(body.name).toBe('Ana Souza')
+    expect(body.cpf).toBe('98765432100')
+    expect(body.phone).toBe('(11) 98888-7777')
   })
 
   it('rejeita registro com e-mail duplicado (400)', async () => {
     const response = await postJson('/auth/register', {
       name: 'Demo',
+      cpf: '11122233344',
       email: 'demo@financas.dev',
+      phone: '(11) 97777-6666',
+      password: '123456',
+    })
+
+    expect(response.status).toBe(400)
+  })
+
+  it('rejeita registro com CPF duplicado (400)', async () => {
+    const response = await postJson('/auth/register', {
+      name: 'Outra Pessoa',
+      cpf: '12345678900',
+      email: `outra-${Date.now()}@financas.dev`,
+      phone: '(11) 96666-5555',
       password: '123456',
     })
 
