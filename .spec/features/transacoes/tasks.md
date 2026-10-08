@@ -5,7 +5,7 @@
 ## Ordem de Execução
 
 - [x] **T-001:** Adicionar `@tanstack/react-query` e criar o `QueryProvider` integrado ao `main.tsx`, com testes — *(cobre AC-001)*
-- [ ] **T-002:** Estender o contrato do mock (`paymentMethod` obrigatório, `search` nos filtros), atualizando seed, handlers e testes existentes/novos — *(cobre AC-002)*
+- [x] **T-002:** Estender o contrato do mock (`paymentMethod` obrigatório, `search` nos filtros), atualizando seed, handlers e testes existentes/novos — *(cobre AC-002)*
 - [ ] **T-003:** Criar os serviços `src/services/transactions.ts` e `src/services/categories.ts` (tipados) e testes — *(cobre AC-003)*
 - [ ] **T-004:** Criar os hooks React Query (`use-transactions.ts`) com invalidação de cache e testes — *(cobre AC-003)*
 - [ ] **T-005:** Criar o schema zod do formulário de transação (`src/features/transactions/schemas.ts`) e testes — *(cobre AC-008)*

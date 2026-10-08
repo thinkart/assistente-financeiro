@@ -35,6 +35,7 @@ const validPayload = {
   description: 'Compra de teste',
   amount: 99.9,
   type: 'expense' as const,
+  paymentMethod: 'pix' as const,
   date: '2026-09-15',
   categoryId: 'lazer',
 }
@@ -110,6 +111,18 @@ describe('handlers de transações (AC-006)', () => {
     )
   })
 
+  it('filtra pela busca textual na descrição', async () => {
+    const { body } = await fetchTransactions('?search=merc')
+
+    expect(body.length).toBeGreaterThan(0)
+    expect(
+      body.every((item) => item.description.toLowerCase().includes('merc')),
+    ).toBe(true)
+    expect(body.map((item) => item.id).sort()).toEqual(
+      expectedIds((item) => item.description.toLowerCase().includes('merc')),
+    )
+  })
+
   it('cria uma transação com 201 e a inclui na listagem', async () => {
     const response = await sendJson('POST', '/transactions', validPayload)
 
@@ -118,6 +131,7 @@ describe('handlers de transações (AC-006)', () => {
     const created = (await response.json()) as Transaction
     expect(created.id).toBeTruthy()
     expect(created.description).toBe('Compra de teste')
+    expect(created.paymentMethod).toBe('pix')
 
     const { body } = await fetchTransactions()
     expect(body.some((item) => item.id === created.id)).toBe(true)
@@ -150,6 +164,12 @@ describe('handlers de transações (AC-006)', () => {
       date: '15/09/2026',
     })
     expect(invalidDate.status).toBe(400)
+
+    const invalidPaymentMethod = await sendJson('POST', '/transactions', {
+      ...validPayload,
+      paymentMethod: 'cheque',
+    })
+    expect(invalidPaymentMethod.status).toBe(400)
   })
 
   it('atualiza uma transação existente com 200', async () => {

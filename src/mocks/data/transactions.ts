@@ -1,4 +1,4 @@
-import type { Transaction } from '@/types'
+import type { PaymentMethod, Transaction } from '@/types'
 
 interface TransactionTemplate {
   monthsAgo: number
@@ -267,11 +267,23 @@ const templates: TransactionTemplate[] = [
   },
 ]
 
+const paymentByCategory: Record<string, PaymentMethod> = {
+  salario: 'pix',
+  freelance: 'pix',
+  alimentacao: 'credito',
+  transporte: 'pix',
+  moradia: 'boleto',
+  lazer: 'credito',
+  saude: 'debito',
+  educacao: 'credito',
+}
+
 export const transactions: Transaction[] = templates.map((template, index) => ({
   id: `t${index + 1}`,
   description: template.description,
   amount: template.amount,
   type: template.type,
+  paymentMethod: paymentByCategory[template.categoryId] ?? 'pix',
   date: dateFor(template.monthsAgo, template.day),
   categoryId: template.categoryId,
 }))

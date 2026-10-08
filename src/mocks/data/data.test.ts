@@ -50,6 +50,9 @@ describe('dados fake de transações (AC-003)', () => {
 
       expect(item.description.length).toBeGreaterThan(0)
       expect(item.amount).toBeGreaterThan(0)
+      expect(['pix', 'credito', 'debito', 'dinheiro', 'boleto']).toContain(
+        item.paymentMethod,
+      )
       expect(item.date).toMatch(ISO_DATE)
 
       const date = new Date(`${item.date}T00:00:00`).getTime()

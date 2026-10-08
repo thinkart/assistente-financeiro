@@ -3,6 +3,7 @@ import type {
   AuthResponse,
   Category,
   CategoryReport,
+  PaymentMethod,
   RegisterPayload,
   SummaryReport,
   Transaction,
@@ -46,11 +47,13 @@ describe('tipos do contrato da API (AC-002)', () => {
       description: 'Salário de outubro',
       amount: 5000,
       type: category.type,
+      paymentMethod: 'pix',
       date: '2026-10-05',
       categoryId: category.id,
     }
 
     expect(transaction.type satisfies TransactionType).toBe('income')
+    expect(transaction.paymentMethod satisfies PaymentMethod).toBe('pix')
     expect(transaction.categoryId).toBe('c1')
   })
 
