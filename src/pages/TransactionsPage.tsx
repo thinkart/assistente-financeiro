@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { useCategories } from '@/features/categories/use-categories'
 import { DeleteTransactionDialog } from '@/features/transactions/DeleteTransactionDialog'
 import { FiltersBar } from '@/features/transactions/FiltersBar'
 import { TransactionForm } from '@/features/transactions/TransactionForm'
@@ -12,7 +12,6 @@ import {
   useTransactions,
   useUpdateTransaction,
 } from '@/features/transactions/use-transactions'
-import { fetchCategories } from '@/services/categories'
 import type { Transaction, TransactionFilters, TransactionInput } from '@/types'
 
 const PAGE_SIZE = 10
@@ -24,10 +23,7 @@ export function TransactionsPage() {
   const [editing, setEditing] = useState<Transaction | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null)
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ['categories'],
-    queryFn: fetchCategories,
-  })
+  const { data: categories = [] } = useCategories()
 
   const {
     data: transactions = [],
