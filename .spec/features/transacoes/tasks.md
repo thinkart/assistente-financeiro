@@ -13,5 +13,5 @@
 - [x] **T-007:** Criar a `FiltersBar` (Buscar, Tipo, Categoria, Período, Aplicar filtros) e testes — *(cobre AC-006)*
 - [x] **T-008:** Criar o `TransactionForm` em modal (criar/editar/salvar e adicionar outra) e testes — *(cobre AC-008)*
 - [x] **T-009:** Criar o `DeleteTransactionDialog` (confirmação de exclusão) e testes — *(cobre AC-009)*
-- [ ] **T-010:** Criar a `TransactionsPage` (query, filtros, paginação, modais, estados loading/erro/vazio e toasts), ligar a rota `/transacoes` e testes — *(cobre AC-004, AC-007, AC-009)*
+- [x] **T-010:** Criar a `TransactionsPage` (query, filtros, paginação, modais, estados loading/erro/vazio e toasts), ligar a rota `/transacoes` e testes — *(cobre AC-004, AC-007, AC-009)*
 - [ ] **T-011:** Atualizar o `README.md` (seção Transações) e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-010)*

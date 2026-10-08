@@ -4,6 +4,7 @@ import { RequireAuth } from '@/features/auth/RequireAuth'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { RegisterPage } from '@/pages/RegisterPage'
+import { TransactionsPage } from '@/pages/TransactionsPage'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
+          <Route path="/transacoes" element={<TransactionsPage />} />
         </Route>
       </Route>
 
