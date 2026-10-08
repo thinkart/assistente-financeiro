@@ -4,7 +4,7 @@
 
 ## Ordem de Execução
 
-- [ ] **T-001:** Adicionar dependências `react-router-dom`, `react-hook-form`, `zod`, `@hookform/resolvers` e `sonner` (`package.json`) — *(cobre AC-001)*
+- [x] **T-001:** Adicionar dependências `react-router-dom`, `react-hook-form`, `zod`, `@hookform/resolvers` e `sonner` (`package.json`) — *(cobre AC-001)*
 - [ ] **T-002:** Estender o contrato do mock (`User` com `cpf`/`phone`, register com novos campos e duplicidades) atualizando handlers, seed e testes existentes — *(cobre AC-002)*
 - [ ] **T-003:** Criar os schemas zod de login e cadastro (`src/features/auth/schemas.ts`) e testes — *(cobre AC-003)*
 - [ ] **T-004:** Criar o token storage (`financas-token`), o interceptor de request (Bearer) e o tratamento global de 401 no `src/services/api.ts`, com testes — *(cobre AC-005)*
