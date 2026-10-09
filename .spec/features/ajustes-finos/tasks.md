@@ -9,4 +9,4 @@
 - [x] **T-003:** Criar testes de acessibilidade das páginas Dashboard, Transações, Categorias e Relatórios — *(cobre AC-002)*
 - [x] **T-004:** Criar o menu mobile no `AppLayout` (botão acessível + DropdownMenu com os links) e testes — *(cobre AC-003)*
 - [x] **T-005:** Auditar estados (loading/erro/vazio) e responsividade com correções pontuais — *(cobre AC-004)*
-- [ ] **T-006:** Consolidar o `README.md` final e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-005)*
+- [x] **T-006:** Consolidar o `README.md` final e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-005)*

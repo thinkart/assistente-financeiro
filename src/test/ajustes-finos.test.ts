@@ -15,6 +15,8 @@ const eslintConfigSource = readFileSync(
   'utf8',
 )
 
+const readmeSource = readFileSync(join(process.cwd(), 'README.md'), 'utf8')
+
 describe('acessibilidade estática no ESLint (AC-001)', () => {
   it('declara eslint-plugin-jsx-a11y em devDependencies', () => {
     expect(
@@ -26,5 +28,30 @@ describe('acessibilidade estática no ESLint (AC-001)', () => {
     expect(eslintConfigSource).toContain('eslint-plugin-jsx-a11y')
     expect(eslintConfigSource).toContain('jsx-a11y')
     expect(eslintConfigSource).toContain('flatConfigs.recommended')
+  })
+})
+
+describe('README final (AC-005)', () => {
+  it('consolida as seções de rotas, acessibilidade e entregáveis', () => {
+    expect(readmeSource).toContain('## Rotas')
+    expect(readmeSource).toContain('## Acessibilidade')
+    expect(readmeSource).toContain('## Entregáveis')
+  })
+
+  it('documenta rotas, credenciais de demonstração e alternância mock/API real', () => {
+    for (const route of [
+      '/login',
+      '/cadastro',
+      '/transacoes',
+      '/categorias',
+      '/relatorios',
+    ]) {
+      expect(readmeSource).toContain(`\`${route}\``)
+    }
+
+    expect(readmeSource).toContain('demo@financas.dev')
+    expect(readmeSource).toContain('123456')
+    expect(readmeSource).toContain('VITE_USE_MOCK=false')
+    expect(readmeSource).toContain('VITE_API_URL')
   })
 })
