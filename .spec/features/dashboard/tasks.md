@@ -11,4 +11,4 @@
 - [x] **T-005:** Criar o gráfico `MonthlyExpensesChart` (Recharts) + stub de `ResizeObserver` no setup + testes — *(cobre AC-004)*
 - [x] **T-006:** Criar o card `LatestTransactions` (últimas 5, tabela/cards, "Ver todas") e testes — *(cobre AC-005)*
 - [x] **T-007:** Compor a `DashboardPage` (período do mês, seções, estados loading/erro/vazio), atualizar `DashboardPage.test` e validar as rotas — *(cobre AC-006, AC-007)*
-- [ ] **T-008:** Atualizar o `README.md` (seção Dashboard) e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-008)*
+- [x] **T-008:** Atualizar o `README.md` (seção Dashboard) e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-008)*

@@ -66,6 +66,15 @@ Rotas e fluxo de sessão:
 - Toasts de feedback (Sonner) respeitam o tema claro/escuro.
 - Testes do fluxo em `src/features/auth/` e `src/pages/`.
 
+## Dashboard
+
+A rota `/` (área privada) mostra o **Resumo financeiro do mês**:
+
+- Cards de **Receitas**, **Despesas** e **Saldo** do mês atual, via `GET /reports/summary?startDate&endDate` (período calculado com **date-fns**).
+- Gráfico **Despesas por mês (R$)** com **Recharts**: últimos 6 meses agregados no cliente a partir de `GET /transactions`; as cores são lidas das CSS variables e atualizam junto com o tema.
+- Card **Últimas transações** com as 5 mais recentes (sinal e tokens por tipo) e link **Ver todas** → `/transacoes`.
+- Estados de loading, erro (com "Tentar novamente") e vazio.
+
 ## Transações
 
 A rota `/transacoes` (área privada) entrega o CRUD completo:
