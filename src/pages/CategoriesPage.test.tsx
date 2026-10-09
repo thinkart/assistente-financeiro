@@ -177,6 +177,9 @@ describe('CategoriesPage (AC-004, AC-006, AC-008)', () => {
     expect(
       await screen.findByText('Nenhuma categoria encontrada.'),
     ).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Nenhuma categoria encontrada.',
+    )
   })
 
   it('mostra o estado de erro e permite tentar novamente', async () => {

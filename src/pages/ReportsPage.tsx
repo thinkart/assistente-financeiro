@@ -72,7 +72,10 @@ export function ReportsPage() {
           <KpiCards summary={summaryQuery.data} />
 
           {report.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">
+            <p
+              role="status"
+              className="py-8 text-center text-sm text-muted-foreground"
+            >
               Nenhum dado no período.
             </p>
           ) : (

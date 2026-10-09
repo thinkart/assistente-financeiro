@@ -25,6 +25,19 @@ npm install
 | `npm run lint`    | Executa o ESLint                                     |
 | `npm run format`  | Formata o código com Prettier                        |
 
+## Rotas
+
+| Rota          | Acesso  | Descrição                    |
+| ------------- | ------- | ---------------------------- |
+| `/login`      | Pública | Login com e-mail e senha     |
+| `/cadastro`   | Pública | Criação de conta             |
+| `/`           | Privada | Dashboard (resumo do mês)    |
+| `/transacoes` | Privada | CRUD + filtros de transações |
+| `/categorias` | Privada | CRUD de categorias           |
+| `/relatorios` | Privada | Relatórios por categoria     |
+
+As rotas privadas ficam atrás de `RequireAuth` + `AppLayout`; sem sessão, redirecionam para `/login` preservando a rota de origem.
+
 ## Variáveis de ambiente
 
 Copie o arquivo de exemplo e ajuste conforme necessário:
@@ -105,6 +118,20 @@ A rota `/relatorios` (área privada) analisa os valores por categoria:
 - Gráfico de **barras horizontais** por categoria (Recharts; cor por tipo lida das CSS variables) e tabela de **Detalhamento por categoria** (total em BRL e percentual).
 - Dados via `GET /reports/by-category` (e `GET /reports/summary` para os cards); estados de loading, erro (com "Tentar novamente") e vazio ("Nenhum dado no período.").
 
+## Navegação e layout
+
+- Header com nome do usuário, `ThemeToggle` e **Sair** em todas as telas privadas.
+- Sidebar com Dashboard, Transações, Categorias e Relatórios a partir de 640px (`sm`), destacando a rota ativa.
+- Abaixo de 640px a navegação vira um **menu no header**: botão "Abrir menu de navegação" com `aria-expanded`, destino ativo marcado com `aria-current="page"` e fechamento ao navegar ou com `Esc`.
+- Tabelas viram listas de cards abaixo de 720px; filtros e KPIs usam grids mobile-first.
+
+## Acessibilidade
+
+- `eslint-plugin-jsx-a11y` com as regras recomendadas no flat config (`eslint.config.js`).
+- Testes automatizados com `vitest-axe` (`toHaveNoViolations`) nas páginas Login, Dashboard, Transações, Categorias e Relatórios (`src/pages/*.a11y.test.tsx`), com o helper `src/test/a11y.ts`.
+- A regra de contraste de cor fica **fora** desses testes (o jsdom não computa cores) — verificação manual nos dois temas.
+- Labels associados em todos os campos e foco visível (`focus-visible:ring-2` com tokens) em controles e links de navegação.
+
 ## Tema claro/escuro
 
 O app suporta os modos **Claro**, **Escuro** e **Sistema** (segue a preferência do sistema operacional), alternáveis pelo botão de sol/lua no header (`ThemeToggle`).
@@ -128,6 +155,16 @@ Os componentes base vêm do [shadcn/ui](https://ui.shadcn.com) na versão compat
 - Os componentes usam apenas **tokens semânticos** (`bg-card`, `bg-popover`, `text-muted-foreground`, `focus:bg-accent`, etc.); bordas usam o token global (`* { @apply border-border }` no `globals.css`).
 - Animações (abrir/fechar de Dialog e Dropdown) vêm do plugin `tailwindcss-animate`.
 - Para adicionar novos componentes: `npx shadcn@2.3.0 add <componente>` e ajuste qualquer cor fixa (ex.: `bg-black/80`) para tokens, mantendo o padrão do projeto.
+
+## Entregáveis
+
+- [x] Projeto roda com `npm install && npm run dev`
+- [x] Todas as telas navegáveis: Login/Cadastro, Dashboard, Transações, Categorias e Relatórios
+- [x] API 100% mockada via MSW (nenhuma chamada real ao Flask)
+- [x] README com execução, alternância mock/API real e credenciais de demonstração
+- [x] Tipos TypeScript em `src/types/` refletindo o contrato
+- [x] Autenticação com token persistido e rotas privadas protegidas
+- [x] Tema claro/escuro/sistema sem FOUC em todas as telas
 
 ## Estrutura
 

@@ -135,7 +135,10 @@ export function TransactionsPage() {
       )}
 
       {!isPending && !isError && transactions.length === 0 && (
-        <p className="py-8 text-center text-sm text-muted-foreground">
+        <p
+          role="status"
+          className="py-8 text-center text-sm text-muted-foreground"
+        >
           Nenhuma transação encontrada.
         </p>
       )}

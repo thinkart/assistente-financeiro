@@ -1,8 +1,11 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, expect } from 'vitest'
+import * as matchers from 'vitest-axe/matchers'
 import { server } from '@/mocks/server'
 import { createMatchMedia, resetMatchMedia } from './match-media'
+
+expect.extend(matchers)
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
