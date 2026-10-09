@@ -1,7 +1,7 @@
 import { endOfMonth, format, startOfMonth } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
-import { KpiCards } from '@/features/dashboard/KpiCards'
+import { KpiCards } from '@/components/KpiCards'
 import { LatestTransactions } from '@/features/dashboard/LatestTransactions'
 import { MonthlyExpensesChart } from '@/features/dashboard/MonthlyExpensesChart'
 import { buildMonthlyExpenses } from '@/features/dashboard/monthly-expenses'

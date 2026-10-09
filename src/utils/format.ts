@@ -6,3 +6,9 @@ export const formatCurrency = (value: number) =>
 
 export const formatDate = (isoDate: string) =>
   new Date(`${isoDate}T00:00:00`).toLocaleDateString('pt-BR')
+
+export const formatPercentage = (value: number) =>
+  `${value.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}%`

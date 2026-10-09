@@ -76,6 +76,16 @@ describe('rotas do App (AC-001)', () => {
       await screen.findByRole('heading', { name: 'Categorias' }),
     ).toBeInTheDocument()
   })
+
+  it('renderiza a página de relatórios na rota /relatorios', async () => {
+    setStoredToken('mock-access-token')
+
+    renderApp('/relatorios')
+
+    expect(
+      await screen.findByRole('heading', { name: 'Relatórios' }),
+    ).toBeInTheDocument()
+  })
 })
 
 describe('main.tsx', () => {

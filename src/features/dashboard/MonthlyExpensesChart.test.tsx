@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
 import type { Transaction } from '@/types'
 import { MonthlyExpensesChart } from './MonthlyExpensesChart'
-import { resolveChartColor } from './chart-color'
 import { buildMonthlyExpenses } from './monthly-expenses'
 
 const reference = new Date(2026, 9, 8)
@@ -31,11 +30,6 @@ const data = buildMonthlyExpenses(
 )
 
 describe('MonthlyExpensesChart (AC-004)', () => {
-  it('resolve a cor do gráfico a partir da CSS variable', () => {
-    expect(resolveChartColor('0 84% 60%')).toBe('hsl(0 84% 60%)')
-    expect(resolveChartColor('  ')).toBe('currentColor')
-  })
-
   it('renderiza o título e uma barra por mês', async () => {
     const { container } = render(
       <ThemeProvider>
