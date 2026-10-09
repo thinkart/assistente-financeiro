@@ -9,4 +9,4 @@
 - [x] **T-003:** Criar `ResumoFinanceiroChart.tsx` com 3 linhas + testes — *(AC-003)*
 - [x] **T-004:** Atualizar `DashboardPage` e seu teste para o novo gráfico — *(AC-004)*
 - [x] **T-005:** Remover `MonthlyExpensesChart`/`monthly-expenses` e testes — *(AC-004)*
-- [ ] **T-006:** Atualizar `README.md` e validar `lint`/`test`/`build` — *(AC-005)*
+- [x] **T-006:** Atualizar `README.md` e validar `lint`/`test`/`build` — *(AC-005)*
