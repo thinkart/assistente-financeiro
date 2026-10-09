@@ -96,6 +96,15 @@ A rota `/categorias` (área privada) entrega o CRUD de categorias:
 - Cores: 8 tokens semânticos (`--category-1..8` no `globals.css`/Tailwind) resolvidos de forma determinística em `src/features/categories/colors.ts` (mapa + fallback por hash) e exibidos via `CategoryBadge` — também aplicados na tabela de transações.
 - Estados de loading, erro (com "Tentar novamente") e vazio.
 
+## Relatórios
+
+A rota `/relatorios` (área privada) analisa os valores por categoria:
+
+- Filtros de **Período** (De/Até) e **Tipo** (**Despesas** padrão / Receitas) com **Aplicar filtros**; período vazio considera todo o histórico.
+- Cards de Receitas/Despesas/Saldo do período filtrado (reutilizando os `KpiCards` do dashboard).
+- Gráfico de **barras horizontais** por categoria (Recharts; cor por tipo lida das CSS variables) e tabela de **Detalhamento por categoria** (total em BRL e percentual).
+- Dados via `GET /reports/by-category` (e `GET /reports/summary` para os cards); estados de loading, erro (com "Tentar novamente") e vazio ("Nenhum dado no período.").
+
 ## Tema claro/escuro
 
 O app suporta os modos **Claro**, **Escuro** e **Sistema** (segue a preferência do sistema operacional), alternáveis pelo botão de sol/lua no header (`ThemeToggle`).

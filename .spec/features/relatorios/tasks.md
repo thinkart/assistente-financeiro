@@ -11,4 +11,4 @@
 - [x] **T-005:** Criar os filtros de relatórios (`ReportsFilters`: período + tipo + aplicar) e testes — *(cobre AC-004)*
 - [x] **T-006:** Criar a `CategoryReportTable` (categoria, total, percentual) e testes — *(cobre AC-006)*
 - [x] **T-007:** Compor a `ReportsPage` (cards, gráfico, tabela, estados), ligar a rota `/relatorios` e testes — *(cobre AC-001, AC-007)*
-- [ ] **T-008:** Atualizar o `README.md` (seção Relatórios) e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-008)*
+- [x] **T-008:** Atualizar o `README.md` (seção Relatórios) e validar `npm run lint`, `npm test` e `npm run build` — *(cobre AC-008)*
