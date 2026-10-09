@@ -9,8 +9,8 @@ import {
 } from 'recharts'
 import { useTheme } from '@/app/providers/theme-context'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { readChartColor } from '@/utils/chart-color'
 import { formatCurrency } from '@/utils/format'
-import { CHART_COLOR_VAR, resolveChartColor } from './chart-color'
 import type { MonthlyExpensePoint } from './monthly-expenses'
 
 interface MonthlyExpensesChartProps {
@@ -20,11 +20,7 @@ interface MonthlyExpensesChartProps {
 export function MonthlyExpensesChart({ data }: MonthlyExpensesChartProps) {
   const { resolvedTheme } = useTheme()
 
-  const barColor = resolveChartColor(
-    getComputedStyle(document.documentElement).getPropertyValue(
-      CHART_COLOR_VAR,
-    ),
-  )
+  const barColor = readChartColor('expense')
 
   return (
     <Card>
