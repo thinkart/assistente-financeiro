@@ -134,9 +134,10 @@ A rota `/relatorios` (área privada) analisa os valores por categoria:
 
 ## Tema claro/escuro
 
-O app suporta os modos **Claro**, **Escuro** e **Sistema** (segue a preferência do sistema operacional), alternáveis pelo botão de sol/lua no header (`ThemeToggle`).
+O app inicia seguindo o **tema do sistema** (`prefers-color-scheme`). A cada toque no botão de sol/lua do header (`ThemeToggle`), o tema alterna entre **claro** e **escuro**, e a escolha passa a valer para as próximas visitas.
 
-- A escolha é persistida em `localStorage` na chave `financas-theme` e um valor inválido cai no modo `Sistema`.
+- Sem escolha salva, o tema acompanha mudanças do sistema operacional em tempo real; após o primeiro toque, ele fica fixo no valor escolhido (não reage mais ao SO).
+- A escolha é persistida em `localStorage` na chave `financas-theme` (`light` ou `dark`); um valor ausente ou inválido cai no modo sistema. Para voltar ao modo sistema depois do primeiro toque, é preciso limpar a chave — não há essa opção na interface.
 - O tema é aplicado pela classe `dark` no `<html>` (estratégia `class` do Tailwind).
 - Um script inline no `index.html` aplica o tema antes do bundle carregar, evitando o flash de tema errado (FOUC).
 - As cores são **tokens semânticos** definidos em `src/styles/globals.css` e mapeados no `tailwind.config.ts` — use apenas tokens como `bg-background`, `text-foreground`, `bg-card`, `border-border`, `text-income` e `text-expense`; nunca cores fixas (`bg-white`, `text-gray-900`, hex/rgb).
