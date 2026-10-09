@@ -13,17 +13,28 @@ import { AuthProvider } from '@/features/auth/AuthProvider'
 import { isMockEnabled } from '@/mocks/config'
 import '@/styles/globals.css'
 
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '')
+
 async function enableMocking() {
   if (!isMockEnabled(import.meta.env.VITE_USE_MOCK)) return
 
-  const { worker } = await import('@/mocks/browser')
-  return worker.start({ onUnhandledRequest: 'bypass' })
+  try {
+    const { worker } = await import('@/mocks/browser')
+    return await worker.start({
+      onUnhandledRequest: 'bypass',
+      serviceWorker: {
+        url: `${import.meta.env.BASE_URL}mockServiceWorker.js`,
+      },
+    })
+  } catch (error) {
+    console.error('Falha ao iniciar o mock do MSW:', error)
+  }
 }
 
 enableMocking().then(() => {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <QueryProvider>
           <ThemeProvider>
             <AppToaster />

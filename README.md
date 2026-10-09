@@ -157,6 +157,16 @@ Os componentes base vêm do [shadcn/ui](https://ui.shadcn.com) na versão compat
 - Animações (abrir/fechar de Dialog e Dropdown) vêm do plugin `tailwindcss-animate`.
 - Para adicionar novos componentes: `npx shadcn@2.3.0 add <componente>` e ajuste qualquer cor fixa (ex.: `bg-black/80`) para tokens, mantendo o padrão do projeto.
 
+## Deploy
+
+O site é publicado em `https://<host>/sites/Senac/PI-2026/assistente-financeiro/`. Por isso o build de produção usa esse caminho como `base` (ver `DEPLOY_BASE` no `vite.config.ts`); em desenvolvimento o app continua em `/`.
+
+1. Gere o build: `npm run build`.
+2. Envie **todo o conteúdo** da pasta `dist/` (incluindo `assets/`, `.htaccess` e `mockServiceWorker.js`) para a pasta do servidor.
+3. Para testar localmente com o mesmo caminho: `npm run preview` e abra `http://localhost:4173/sites/Senac/PI-2026/assistente-financeiro/`.
+
+O `public/.htaccess` faz o fallback de SPA no Apache (refresh em `/transacoes`, `/categorias`, etc. volta para o `index.html`). Se o host não for Apache, configure um rewrite equivalente para `index.html`.
+
 ## Entregáveis
 
 - [x] Projeto roda com `npm install && npm run dev`
