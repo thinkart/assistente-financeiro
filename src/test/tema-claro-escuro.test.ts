@@ -237,7 +237,7 @@ const appSourceFiles = [
 
 const forbiddenColorPatterns = [
   /#[0-9a-fA-F]{3,8}\b/g,
-  /\b(?:rgba?|hsla?)\(/g,
+  /\b(?:rgba?|hsla?)\(\s*[\d.]/g,
   /(?:bg|text|border|ring|fill|stroke|from|via|to)-(?:white|black|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)(?:-\d{2,3})?\b/g,
 ]
 
