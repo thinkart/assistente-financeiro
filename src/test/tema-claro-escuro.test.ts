@@ -389,6 +389,12 @@ describe('documentação do tema no README (T-008)', () => {
     expect(readme).toContain('FOUC')
   })
 
+  it('descreve a alternância por toque e o sistema como estado inicial (AC-005)', () => {
+    expect(readme).toMatch(/a cada toque/i)
+    expect(readme).toContain('tema do sistema')
+    expect(readme).not.toContain('dropdown')
+  })
+
   it('orienta o uso exclusivo de tokens semânticos', () => {
     expect(readme).toContain('tokens semânticos')
     expect(readme).toContain('bg-background')
