@@ -29,17 +29,18 @@ const renderComponent = (items: Transaction[] = transactions) =>
     </MemoryRouter>,
   )
 
-describe('LatestTransactions (AC-005)', () => {
-  it('mostra apenas as 5 mais recentes e o link Ver todas', () => {
+describe('LatestTransactions (AC-001, AC-002)', () => {
+  it('mostra apenas as 5 mais recentes em lista única, sem tabela, e o link Ver todas', () => {
     renderComponent()
 
-    const table = screen.getByRole('table')
-    const rows = within(table).getAllByRole('row').slice(1)
+    const list = screen.getByRole('list', { name: 'Últimas transações' })
+    const items = within(list).getAllByRole('listitem')
 
-    expect(rows).toHaveLength(5)
-    expect(within(table).getByText('Transação 1')).toBeInTheDocument()
-    expect(within(table).getByText('Transação 5')).toBeInTheDocument()
-    expect(within(table).queryByText('Transação 6')).not.toBeInTheDocument()
+    expect(items).toHaveLength(5)
+    expect(within(list).getByText('Transação 1')).toBeInTheDocument()
+    expect(within(list).getByText('Transação 5')).toBeInTheDocument()
+    expect(within(list).queryByText('Transação 6')).not.toBeInTheDocument()
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
 
     expect(screen.getByRole('link', { name: 'Ver todas' })).toHaveAttribute(
       'href',
@@ -61,28 +62,42 @@ describe('LatestTransactions (AC-005)', () => {
       }),
     ])
 
-    const table = screen.getByRole('table')
+    const list = screen.getByRole('list', { name: 'Últimas transações' })
 
-    expect(within(table).getByText('05/10/2026')).toBeInTheDocument()
+    expect(within(list).getByText('05/10/2026')).toBeInTheDocument()
 
-    const incomeValue = within(table).getByText(/5\.200,00/)
+    const incomeValue = within(list).getByText(/5\.200,00/)
     expect(incomeValue).toHaveTextContent('+')
     expect(incomeValue.className).toContain('text-income')
 
-    const expenseValue = within(table).getByText(/320,50/)
+    const expenseValue = within(list).getByText(/320,50/)
     expect(expenseValue).toHaveTextContent('-')
     expect(expenseValue.className).toContain('text-expense')
   })
 
-  it('renderiza a versão mobile em cards', () => {
-    renderComponent()
+  it('replica o layout da lista mobile em qualquer tamanho de tela', () => {
+    renderComponent([makeTransaction(1)])
 
-    const list = screen.getByRole('list', {
-      name: 'Últimas transações (mobile)',
-    })
+    const list = screen.getByRole('list', { name: 'Últimas transações' })
+    const item = within(list).getAllByRole('listitem')[0] as HTMLElement
 
-    expect(within(list).getAllByRole('listitem')).toHaveLength(5)
-    expect(within(list).getByText('Transação 1')).toBeInTheDocument()
+    expect(item.className).toContain('flex')
+    expect(item.className).toContain('justify-between')
+    expect(item.className).toContain('border-b')
+    expect(item.className).toContain('py-2')
+    expect(item.className).toContain('text-sm')
+    expect(item.className).toContain('last:border-0')
+
+    const description = within(item).getByText('Transação 1')
+    expect(description.className).toContain('truncate')
+    expect(description.className).toContain('font-medium')
+
+    const date = within(item).getByText('01/10/2026')
+    expect(date.className).toContain('text-xs')
+    expect(date.className).toContain('text-muted-foreground')
+
+    const value = within(item).getByText(/101,00/)
+    expect(value.className).toContain('whitespace-nowrap')
   })
 
   it('mostra o estado vazio quando não há transações', () => {
@@ -91,6 +106,7 @@ describe('LatestTransactions (AC-005)', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       'Nenhuma transação encontrada.',
     )
+    expect(screen.queryByRole('list')).not.toBeInTheDocument()
     expect(screen.queryByRole('table')).not.toBeInTheDocument()
   })
 })
