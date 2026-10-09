@@ -64,6 +64,9 @@ describe('DashboardPage (AC-006, AC-007)', () => {
     expect(
       await screen.findByText('Nenhuma transação encontrada.'),
     ).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Nenhuma transação encontrada.',
+    )
   })
 
   it('mostra o estado de erro e permite tentar novamente', async () => {

@@ -43,7 +43,10 @@ export function LatestTransactions({
       </CardHeader>
       <CardContent>
         {latest.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
+          <p
+            role="status"
+            className="py-6 text-center text-sm text-muted-foreground"
+          >
             Nenhuma transação encontrada.
           </p>
         ) : (

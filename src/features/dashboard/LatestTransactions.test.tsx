@@ -88,9 +88,9 @@ describe('LatestTransactions (AC-005)', () => {
   it('mostra o estado vazio quando não há transações', () => {
     renderComponent([])
 
-    expect(
-      screen.getByText('Nenhuma transação encontrada.'),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Nenhuma transação encontrada.',
+    )
     expect(screen.queryByRole('table')).not.toBeInTheDocument()
   })
 })

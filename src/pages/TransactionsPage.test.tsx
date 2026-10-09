@@ -203,6 +203,9 @@ describe('TransactionsPage (AC-004, AC-007, AC-009)', () => {
     expect(
       await screen.findByText('Nenhuma transação encontrada.'),
     ).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Nenhuma transação encontrada.',
+    )
   })
 
   it('mostra o estado de erro e permite tentar novamente', async () => {

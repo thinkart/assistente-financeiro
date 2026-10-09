@@ -129,7 +129,10 @@ export function CategoriesPage() {
       )}
 
       {!isPending && !isError && categories.length === 0 && (
-        <p className="py-8 text-center text-sm text-muted-foreground">
+        <p
+          role="status"
+          className="py-8 text-center text-sm text-muted-foreground"
+        >
           Nenhuma categoria encontrada.
         </p>
       )}

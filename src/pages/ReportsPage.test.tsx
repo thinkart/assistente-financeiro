@@ -85,6 +85,9 @@ describe('ReportsPage (AC-001, AC-007)', () => {
     expect(
       await screen.findByText('Nenhum dado no período.'),
     ).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Nenhum dado no período.',
+    )
   })
 
   it('mostra o estado de erro e permite tentar novamente', async () => {

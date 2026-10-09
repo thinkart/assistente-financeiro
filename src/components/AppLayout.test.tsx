@@ -76,13 +76,13 @@ describe('AppLayout (AC-009)', () => {
   })
 })
 
-describe('AppLayout — menu mobile (AC-003)', () => {
-  const openMobileMenu = async () => {
-    const trigger = screen.getByRole('button', { name: /abrir menu/i })
-    fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false })
-    return { trigger, menu: await screen.findByRole('menu') }
-  }
+const openMobileMenu = async () => {
+  const trigger = screen.getByRole('button', { name: /abrir menu/i })
+  fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false })
+  return { trigger, menu: await screen.findByRole('menu') }
+}
 
+describe('AppLayout — menu mobile (AC-003)', () => {
   it('exibe o gatilho apenas em telas estreitas e reflete aria-expanded', async () => {
     renderLayout()
     await screen.findByText('Demo')
@@ -147,5 +147,22 @@ describe('AppLayout — menu mobile (AC-003)', () => {
     fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' })
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+  })
+})
+
+describe('AppLayout — foco visível na navegação (AC-004)', () => {
+  it('aplica anel de foco nos links da sidebar e do menu mobile', async () => {
+    renderLayout()
+    await screen.findByText('Demo')
+
+    expect(screen.getByRole('link', { name: 'Dashboard' }).className).toContain(
+      'focus-visible:ring-2',
+    )
+
+    await openMobileMenu()
+
+    expect(
+      screen.getByRole('menuitem', { name: 'Dashboard' }).className,
+    ).toContain('focus-visible:ring-2')
   })
 })
