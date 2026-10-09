@@ -4,7 +4,7 @@
 
 ## Ordem de Execução
 
-- [ ] **T-001:** Adicionar `recharts` e `date-fns` (`package.json`) — *(cobre AC-001)*
+- [x] **T-001:** Adicionar `recharts` e `date-fns` (`package.json`) — *(cobre AC-001)*
 - [ ] **T-002:** Criar o serviço `fetchSummary` (`src/services/reports.ts`) e o hook `useSummary` com testes — *(cobre AC-002)*
 - [ ] **T-003:** Criar a agregação mensal de despesas (`src/features/dashboard/monthly-expenses.ts`) e testes — *(cobre AC-004)*
 - [ ] **T-004:** Criar os cards de KPIs (Receitas/Despesas/Saldo) e testes — *(cobre AC-003)*
