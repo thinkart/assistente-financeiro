@@ -7,17 +7,29 @@ import { RequireAuth } from '@/features/auth/RequireAuth'
 import { getStoredToken, setStoredToken } from '@/services/token'
 import { AppLayout } from './AppLayout'
 
-const renderLayout = () => {
+const renderLayout = (initialEntry = '/') => {
   setStoredToken('mock-access-token')
 
   return render(
     <ThemeProvider>
       <AuthProvider>
-        <MemoryRouter initialEntries={['/']}>
+        <MemoryRouter initialEntries={[initialEntry]}>
           <Routes>
             <Route element={<RequireAuth />}>
               <Route element={<AppLayout />}>
                 <Route path="/" element={<div>Conteúdo do dashboard</div>} />
+                <Route
+                  path="/transacoes"
+                  element={<div>Conteúdo de transações</div>}
+                />
+                <Route
+                  path="/categorias"
+                  element={<div>Conteúdo de categorias</div>}
+                />
+                <Route
+                  path="/relatorios"
+                  element={<div>Conteúdo de relatórios</div>}
+                />
               </Route>
             </Route>
             <Route path="/login" element={<div>Página de login</div>} />
@@ -61,5 +73,79 @@ describe('AppLayout (AC-009)', () => {
 
     expect(await screen.findByText('Página de login')).toBeInTheDocument()
     expect(getStoredToken()).toBeNull()
+  })
+})
+
+describe('AppLayout — menu mobile (AC-003)', () => {
+  const openMobileMenu = async () => {
+    const trigger = screen.getByRole('button', { name: /abrir menu/i })
+    fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false })
+    return { trigger, menu: await screen.findByRole('menu') }
+  }
+
+  it('exibe o gatilho apenas em telas estreitas e reflete aria-expanded', async () => {
+    renderLayout()
+    await screen.findByText('Demo')
+
+    const trigger = screen.getByRole('button', { name: /abrir menu/i })
+    expect(trigger.className).toContain('sm:hidden')
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+
+    fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false })
+
+    expect(await screen.findByRole('menu')).toBeInTheDocument()
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
+  })
+
+  it('oferece os quatro destinos de navegação', async () => {
+    renderLayout()
+    await screen.findByText('Demo')
+    await openMobileMenu()
+
+    for (const label of [
+      'Dashboard',
+      'Transações',
+      'Categorias',
+      'Relatórios',
+    ]) {
+      expect(screen.getByRole('menuitem', { name: label })).toBeInTheDocument()
+    }
+  })
+
+  it('destaca a rota ativa no menu', async () => {
+    renderLayout('/transacoes')
+    await screen.findByText('Demo')
+    await openMobileMenu()
+
+    expect(
+      screen.getByRole('menuitem', { name: 'Transações' }),
+    ).toHaveAttribute('aria-current', 'page')
+    expect(
+      screen.getByRole('menuitem', { name: 'Dashboard' }),
+    ).not.toHaveAttribute('aria-current')
+  })
+
+  it('navega, fecha o menu e atualiza o aria-expanded', async () => {
+    renderLayout()
+    await screen.findByText('Demo')
+    const { trigger } = await openMobileMenu()
+
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Transações' }))
+
+    expect(
+      await screen.findByText('Conteúdo de transações'),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('fecha com a tecla Escape', async () => {
+    renderLayout()
+    await screen.findByText('Demo')
+    await openMobileMenu()
+
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' })
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })
 })
