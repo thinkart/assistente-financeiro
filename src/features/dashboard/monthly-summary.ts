@@ -2,20 +2,22 @@ import { format, startOfMonth, subMonths } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import type { Transaction } from '@/types'
 
-export interface MonthlyExpensePoint {
+export interface MonthlySummaryPoint {
   month: string
   label: string
-  total: number
+  income: number
+  expense: number
+  balance: number
 }
 
 const round2 = (value: number) => Math.round(value * 100) / 100
 
-export const buildMonthlyExpenses = (
+export const buildMonthlySummary = (
   transactions: Transaction[],
   reference: Date = new Date(),
   months = 6,
-): MonthlyExpensePoint[] => {
-  const points: MonthlyExpensePoint[] = []
+): MonthlySummaryPoint[] => {
+  const points: MonthlySummaryPoint[] = []
 
   for (let offset = months - 1; offset >= 0; offset -= 1) {
     const monthDate = startOfMonth(subMonths(reference, offset))
@@ -23,7 +25,9 @@ export const buildMonthlyExpenses = (
     points.push({
       month: format(monthDate, 'yyyy-MM'),
       label: format(monthDate, 'MMM', { locale: ptBR }).replace('.', ''),
-      total: 0,
+      income: 0,
+      expense: 0,
+      balance: 0,
     })
   }
 
@@ -32,13 +36,20 @@ export const buildMonthlyExpenses = (
   )
 
   for (const transaction of transactions) {
-    if (transaction.type !== 'expense') continue
-
     const index = indexByMonth.get(transaction.date.slice(0, 7))
     if (index === undefined) continue
 
     const point = points[index]
-    point.total = round2(point.total + transaction.amount)
+
+    if (transaction.type === 'income') {
+      point.income = round2(point.income + transaction.amount)
+    } else {
+      point.expense = round2(point.expense + transaction.amount)
+    }
+  }
+
+  for (const point of points) {
+    point.balance = round2(point.income - point.expense)
   }
 
   return points

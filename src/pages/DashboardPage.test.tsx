@@ -44,8 +44,8 @@ describe('DashboardPage (AC-006, AC-007)', () => {
     ).toBeInTheDocument()
     expect(await screen.findByText('Receitas')).toBeInTheDocument()
     expect(screen.getByText('Despesas')).toBeInTheDocument()
-    expect(screen.getByText('Saldo')).toBeInTheDocument()
-    expect(screen.getByText('Despesas por mês (R$)')).toBeInTheDocument()
+    expect(screen.getAllByText('Saldo')).toHaveLength(2)
+    expect(screen.getByText('Resumo Financeiro')).toBeInTheDocument()
     expect(screen.getByText('Últimas transações')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Ver todas' })).toHaveAttribute(
       'href',

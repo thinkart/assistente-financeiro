@@ -84,7 +84,7 @@ Rotas e fluxo de sessão:
 A rota `/` (área privada) mostra o **Resumo financeiro do mês**:
 
 - Cards de **Receitas**, **Despesas** e **Saldo** do mês atual, via `GET /reports/summary?startDate&endDate` (período calculado com **date-fns**).
-- Gráfico **Despesas por mês (R$)** com **Recharts**: últimos 6 meses agregados no cliente a partir de `GET /transactions`; as cores são lidas das CSS variables e atualizam junto com o tema.
+- Gráfico **Resumo Financeiro** com **Recharts**: linhas de **Receita** (azul), **Despesa** (vermelha) e **Saldo do mês** (verde) dos últimos 6 meses, agregados no cliente a partir de `GET /transactions`; as cores vêm dos tokens `--chart-income`, `--chart-expense` e `--chart-balance` e atualizam junto com o tema.
 - Card **Últimas transações** com as 5 mais recentes (sinal e tokens por tipo) e link **Ver todas** → `/transacoes`.
 - Estados de loading, erro (com "Tentar novamente") e vazio.
 
