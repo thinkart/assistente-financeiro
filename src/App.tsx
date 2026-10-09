@@ -5,6 +5,7 @@ import { CategoriesPage } from '@/pages/CategoriesPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { RegisterPage } from '@/pages/RegisterPage'
+import { ReportsPage } from '@/pages/ReportsPage'
 import { TransactionsPage } from '@/pages/TransactionsPage'
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/transacoes" element={<TransactionsPage />} />
           <Route path="/categorias" element={<CategoriesPage />} />
+          <Route path="/relatorios" element={<ReportsPage />} />
         </Route>
       </Route>
 
