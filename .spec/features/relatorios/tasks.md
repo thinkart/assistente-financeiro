@@ -5,7 +5,7 @@
 ## Ordem de Execução
 
 - [x] **T-001:** Criar o serviço `fetchCategoryReport` e o hook `useCategoryReport` (filtros de período/tipo) com testes — *(cobre AC-002)*
-- [ ] **T-002:** Mover `KpiCards` para `src/components/` e atualizar o dashboard, com testes — *(cobre AC-003)*
+- [x] **T-002:** Mover `KpiCards` para `src/components/` e atualizar o dashboard, com testes — *(cobre AC-003)*
 - [ ] **T-003:** Estender `chart-color.ts` para resolver cores por tipo (income/expense) e testes — *(cobre AC-005)*
 - [ ] **T-004:** Criar o `CategoryReportChart` (barras horizontais, Recharts) e testes — *(cobre AC-005)*
 - [ ] **T-005:** Criar os filtros de relatórios (`ReportsFilters`: período + tipo + aplicar) e testes — *(cobre AC-004)*
