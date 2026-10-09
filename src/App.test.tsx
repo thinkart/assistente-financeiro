@@ -53,7 +53,7 @@ describe('rotas do App (AC-001)', () => {
     renderApp('/')
 
     expect(
-      await screen.findByText('Bem-vindo ao seu assistente financeiro'),
+      await screen.findByText('Resumo financeiro do mês'),
     ).toBeInTheDocument()
   })
 
