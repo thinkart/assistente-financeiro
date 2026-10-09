@@ -3,8 +3,8 @@ import { ptBR } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
 import { KpiCards } from '@/components/KpiCards'
 import { LatestTransactions } from '@/features/dashboard/LatestTransactions'
-import { MonthlyExpensesChart } from '@/features/dashboard/MonthlyExpensesChart'
-import { buildMonthlyExpenses } from '@/features/dashboard/monthly-expenses'
+import { ResumoFinanceiroChart } from '@/features/dashboard/ResumoFinanceiroChart'
+import { buildMonthlySummary } from '@/features/dashboard/monthly-summary'
 import { useSummary } from '@/features/dashboard/use-summary'
 import { useTransactions } from '@/features/transactions/use-transactions'
 
@@ -62,8 +62,8 @@ export function DashboardPage() {
 
           <div className="grid gap-4 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <MonthlyExpensesChart
-                data={buildMonthlyExpenses(transactionsQuery.data ?? [])}
+              <ResumoFinanceiroChart
+                data={buildMonthlySummary(transactionsQuery.data ?? [])}
               />
             </div>
             <LatestTransactions transactions={transactionsQuery.data ?? []} />
