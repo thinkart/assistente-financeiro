@@ -134,9 +134,9 @@ describe('handlers de relatórios (AC-007)', () => {
         description: 'Despesa extra',
         amount: 100,
         type: 'expense',
-        paymentMethod: 'pix',
+        payment_method: 'pix',
         date: '2026-09-20',
-        categoryId: 'lazer',
+        category_id: 'lazer',
       }),
     })
     expect(createResponse.status).toBe(201)

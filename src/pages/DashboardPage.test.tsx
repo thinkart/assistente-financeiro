@@ -54,7 +54,7 @@ describe('DashboardPage (AC-006, AC-007)', () => {
   })
 
   it('mostra o estado vazio das últimas transações', async () => {
-    server.use(http.get('*/transactions', () => HttpResponse.json([])))
+    server.use(http.get('*/transactions', () => HttpResponse.json({ data: [] })))
 
     renderPage()
 
