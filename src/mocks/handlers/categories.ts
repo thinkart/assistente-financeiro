@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw'
 import type { Category, TransactionType } from '@/types'
 import { categories as seedCategories } from '../data'
 import { applyMockDelay } from '../delay'
+import { errorResponse, validationErrorResponse } from './responses'
 import { getTransactions } from './transactions'
 
 let categoryStore: Category[] = [...seedCategories]
@@ -27,7 +28,7 @@ const parseCategoryBody = (body: unknown) => {
   const { name, type } = body as CategoryBody
   if (
     typeof name !== 'string' ||
-    name.trim() === '' ||
+    name.trim().length < 3 ||
     !isTransactionType(type)
   ) {
     return null
@@ -36,13 +37,10 @@ const parseCategoryBody = (body: unknown) => {
   return { name: name.trim(), type }
 }
 
-const errorResponse = (status: number, message: string) =>
-  HttpResponse.json({ message }, { status })
-
 export const categoryHandlers = [
   http.get('*/categories', async () => {
     await applyMockDelay()
-    return HttpResponse.json(categoryStore)
+    return HttpResponse.json({ data: categoryStore })
   }),
 
   http.post('*/categories', async ({ request }) => {
@@ -50,13 +48,29 @@ export const categoryHandlers = [
 
     const parsed = parseCategoryBody(await request.json())
     if (!parsed) {
-      return errorResponse(400, 'Nome e tipo (income/expense) são obrigatórios')
+      return validationErrorResponse(
+        'Nome (mínimo 3) e tipo (income/expense) são obrigatórios',
+      )
+    }
+
+    const duplicated = categoryStore.some(
+      (category) =>
+        category.name === parsed.name && category.type === parsed.type,
+    )
+    if (duplicated) {
+      return errorResponse(409, 'Categoria já cadastrada')
     }
 
     const category: Category = { id: crypto.randomUUID(), ...parsed }
     categoryStore = [...categoryStore, category]
 
-    return HttpResponse.json(category, { status: 201 })
+    return HttpResponse.json(
+      {
+        message: 'Categoria cadastrada com sucesso',
+        data: category,
+      },
+      { status: 201 },
+    )
   }),
 
   http.put('*/categories/:id', async ({ params, request }) => {
@@ -70,7 +84,9 @@ export const categoryHandlers = [
 
     const parsed = parseCategoryBody(await request.json())
     if (!parsed) {
-      return errorResponse(400, 'Nome e tipo (income/expense) são obrigatórios')
+      return validationErrorResponse(
+        'Nome (mínimo 3) e tipo (income/expense) são obrigatórios',
+      )
     }
 
     const updated: Category = { id: existing.id, ...parsed }
@@ -78,7 +94,10 @@ export const categoryHandlers = [
       category.id === existing.id ? updated : category,
     )
 
-    return HttpResponse.json(updated)
+    return HttpResponse.json({
+      message: 'Categoria atualizada com sucesso',
+      data: updated,
+    })
   }),
 
   http.delete('*/categories/:id', async ({ params }) => {
@@ -90,18 +109,18 @@ export const categoryHandlers = [
       return errorResponse(404, 'Categoria não encontrada')
     }
 
-    const usageCount = getTransactions().filter(
+    const isInUse = getTransactions().some(
       (transaction) => transaction.categoryId === id,
-    ).length
-    if (usageCount > 0) {
+    )
+    if (isInUse) {
       return errorResponse(
-        400,
-        `Categoria em uso por ${usageCount} transação(ões)`,
+        409,
+        'Erro a categoria não pode ser excluída pois há transações vinculadas',
       )
     }
 
     categoryStore = categoryStore.filter((category) => category.id !== id)
 
-    return new HttpResponse(null, { status: 204 })
+    return HttpResponse.json({ message: 'Categoria deletada com sucesso' })
   }),
 ]

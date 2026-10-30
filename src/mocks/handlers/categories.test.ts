@@ -6,7 +6,8 @@ const API_URL = 'http://127.0.0.1:5000'
 
 const getCategories = async () => {
   const response = await fetch(`${API_URL}/categories`)
-  return { response, body: (await response.json()) as Category[] }
+  const payload = (await response.json()) as { data: Category[] }
+  return { response, body: payload.data }
 }
 
 const sendJson = (method: string, path: string, body: unknown) =>
@@ -37,7 +38,12 @@ describe('handlers de categorias (AC-005)', () => {
 
     expect(response.status).toBe(201)
 
-    const created = (await response.json()) as Category
+    const payload = (await response.json()) as {
+      message: string
+      data: Category
+    }
+    expect(payload.message).toBe('Categoria cadastrada com sucesso')
+    const created = payload.data
     expect(created.id).toBeTruthy()
     expect(created.name).toBe('Pets')
 
@@ -45,17 +51,31 @@ describe('handlers de categorias (AC-005)', () => {
     expect(body.some((category) => category.id === created.id)).toBe(true)
   })
 
-  it('rejeita payload inválido com 400', async () => {
+  it('rejeita categoria duplicada com 409', async () => {
+    await sendJson('POST', '/categories', { name: 'Pets', type: 'expense' })
+
+    const response = await sendJson('POST', '/categories', {
+      name: 'Pets',
+      type: 'expense',
+    })
+
+    expect(response.status).toBe(409)
+
+    const body = (await response.json()) as { message: string }
+    expect(body.message).toBe('Categoria já cadastrada')
+  })
+
+  it('rejeita payload inválido com 422', async () => {
     const withoutName = await sendJson('POST', '/categories', {
       type: 'expense',
     })
-    expect(withoutName.status).toBe(400)
+    expect(withoutName.status).toBe(422)
 
     const invalidType = await sendJson('POST', '/categories', {
       name: 'Pets',
       type: 'outro',
     })
-    expect(invalidType.status).toBe(400)
+    expect(invalidType.status).toBe(422)
   })
 
   it('atualiza uma categoria existente com 200', async () => {
@@ -66,8 +86,12 @@ describe('handlers de categorias (AC-005)', () => {
 
     expect(response.status).toBe(200)
 
-    const updated = (await response.json()) as Category
-    expect(updated.name).toBe('Salário CLT')
+    const payload = (await response.json()) as {
+      message: string
+      data: Category
+    }
+    expect(payload.message).toBe('Categoria atualizada com sucesso')
+    expect(payload.data.name).toBe('Salário CLT')
 
     const { body } = await getCategories()
     expect(body.find((category) => category.id === 'salario')?.name).toBe(
@@ -84,41 +108,44 @@ describe('handlers de categorias (AC-005)', () => {
     expect(response.status).toBe(404)
   })
 
-  it('retorna 400 ao atualizar com payload inválido', async () => {
+  it('retorna 422 ao atualizar com payload inválido', async () => {
     const response = await sendJson('PUT', '/categories/salario', {
       name: '',
       type: 'expense',
     })
 
-    expect(response.status).toBe(400)
+    expect(response.status).toBe(422)
   })
 
-  it('remove uma categoria sem vínculos com 204', async () => {
+  it('remove uma categoria sem vínculos com 200', async () => {
     const createResponse = await sendJson('POST', '/categories', {
       name: 'Pets',
       type: 'expense',
     })
-    const created = (await createResponse.json()) as Category
+    const created = ((await createResponse.json()) as { data: Category }).data
 
     const response = await fetch(`${API_URL}/categories/${created.id}`, {
       method: 'DELETE',
     })
 
-    expect(response.status).toBe(204)
+    expect(response.status).toBe(200)
 
-    const { body } = await getCategories()
-    expect(body.some((category) => category.id === created.id)).toBe(false)
+    const body = (await response.json()) as { message: string }
+    expect(body.message).toBe('Categoria deletada com sucesso')
+
+    const { body: categories } = await getCategories()
+    expect(categories.some((category) => category.id === created.id)).toBe(false)
   })
 
-  it('bloqueia a remoção de categoria em uso com 400', async () => {
+  it('bloqueia a remoção de categoria em uso com 409', async () => {
     const response = await fetch(`${API_URL}/categories/educacao`, {
       method: 'DELETE',
     })
 
-    expect(response.status).toBe(400)
+    expect(response.status).toBe(409)
 
     const body = (await response.json()) as { message: string }
-    expect(body.message).toMatch(/em uso/i)
+    expect(body.message).toMatch(/não pode ser excluída/i)
 
     const { body: categories } = await getCategories()
     expect(categories.some((category) => category.id === 'educacao')).toBe(true)

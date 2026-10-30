@@ -9,10 +9,10 @@ describe('instância Axios (AC-001)', () => {
   })
 
   it('conversa com a API mockada via axios', async () => {
-    const response = await api.get<{ id: string }[]>('/categories')
+    const response = await api.get<{ data: { id: string }[] }>('/categories')
 
     expect(response.status).toBe(200)
-    expect(response.data.length).toBeGreaterThan(0)
+    expect(response.data.data.length).toBeGreaterThan(0)
   })
 
   it('recebe 401 do mock ao chamar rota protegida sem token', async () => {

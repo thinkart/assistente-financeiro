@@ -63,9 +63,9 @@ describe('serviço de categorias (AC-003)', () => {
     )
   })
 
-  it('rejeita a remoção de categoria em uso (400)', async () => {
+  it('rejeita a remoção de categoria em uso (409)', async () => {
     await expect(deleteCategory('educacao')).rejects.toMatchObject({
-      response: { status: 400 },
+      response: { status: 409 },
     })
   })
 })

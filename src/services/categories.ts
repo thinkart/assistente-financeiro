@@ -1,27 +1,30 @@
-import type { Category, CategoryInput } from '@/types'
+import type { ApiEnvelope, Category, CategoryInput } from '@/types'
 import { api } from './api'
 
 export const fetchCategories = async (): Promise<Category[]> => {
-  const { data } = await api.get<Category[]>('/categories')
+  const { data } = await api.get<ApiEnvelope<Category[]>>('/categories')
 
-  return data
+  return data.data
 }
 
 export const createCategory = async (
   input: CategoryInput,
 ): Promise<Category> => {
-  const { data } = await api.post<Category>('/categories', input)
+  const { data } = await api.post<ApiEnvelope<Category>>('/categories', input)
 
-  return data
+  return data.data
 }
 
 export const updateCategory = async (
   id: string,
   input: CategoryInput,
 ): Promise<Category> => {
-  const { data } = await api.put<Category>(`/categories/${id}`, input)
+  const { data } = await api.put<ApiEnvelope<Category>>(
+    `/categories/${id}`,
+    input,
+  )
 
-  return data
+  return data.data
 }
 
 export const deleteCategory = async (id: string): Promise<void> => {
