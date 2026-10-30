@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { transactions as seedTransactions } from '@/mocks/data'
 import { resetCategoryStore } from '@/mocks/handlers/categories'
 import { resetTransactionStore } from '@/mocks/handlers/transactions'
@@ -13,11 +13,12 @@ import {
   useUpdateTransaction,
 } from './use-transactions'
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({
+const createQueryClient = () =>
+  new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
 
+const createWrapper = (queryClient: QueryClient = createQueryClient()) => {
   return ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
@@ -124,5 +125,27 @@ describe('hooks de transações (AC-003)', () => {
         false,
       )
     })
+  })
+})
+
+describe('invalidação de relatórios (AC-007)', () => {
+  beforeEach(() => {
+    resetCategoryStore()
+    resetTransactionStore()
+  })
+
+  it('useCreateTransaction invalida as queries de relatórios', async () => {
+    const queryClient = createQueryClient()
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+
+    const { result } = renderHook(() => useCreateTransaction(), {
+      wrapper: createWrapper(queryClient),
+    })
+
+    await act(async () => {
+      await result.current.mutateAsync(newTransaction)
+    })
+
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['reports'] })
   })
 })
