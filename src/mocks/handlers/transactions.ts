@@ -3,6 +3,7 @@ import type { PaymentMethod, Transaction, TransactionType } from '@/types'
 import { transactions as seedTransactions } from '../data'
 import { applyMockDelay } from '../delay'
 import { getCategoryById } from './categories'
+import { errorResponse, validationErrorResponse } from './responses'
 
 let transactionStore: Transaction[] = [...seedTransactions]
 
@@ -16,10 +17,30 @@ interface TransactionBody {
   description?: unknown
   amount?: unknown
   type?: unknown
-  paymentMethod?: unknown
   date?: unknown
-  categoryId?: unknown
+  payment_method?: unknown
+  category_id?: unknown
 }
+
+interface ApiTransaction {
+  id: string
+  description: string
+  amount: string
+  type: TransactionType
+  date: string
+  payment_method: PaymentMethod
+  category_id: string
+}
+
+const toApiTransaction = (transaction: Transaction): ApiTransaction => ({
+  id: transaction.id,
+  description: transaction.description,
+  amount: transaction.amount.toFixed(2),
+  type: transaction.type,
+  date: transaction.date,
+  payment_method: transaction.paymentMethod,
+  category_id: transaction.categoryId,
+})
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -36,26 +57,27 @@ const isPaymentMethod = (value: unknown): value is PaymentMethod =>
 const parseTransactionBody = (body: unknown) => {
   if (typeof body !== 'object' || body === null) return null
 
-  const { description, amount, type, paymentMethod, date, categoryId } =
+  const { description, amount, type, date, payment_method, category_id } =
     body as TransactionBody
 
-  if (typeof description !== 'string' || description.trim() === '') return null
+  if (typeof description !== 'string' || description.trim().length < 3) {
+    return null
+  }
   if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
     return null
   }
   if (!isTransactionType(type)) return null
-  if (!isPaymentMethod(paymentMethod)) return null
+  if (!isPaymentMethod(payment_method)) return null
   if (typeof date !== 'string' || !ISO_DATE.test(date)) return null
-  if (typeof categoryId !== 'string' || !getCategoryById(categoryId))
-    return null
+  if (typeof category_id !== 'string' || category_id === '') return null
 
   return {
     description: description.trim(),
     amount,
     type,
-    paymentMethod,
+    paymentMethod: payment_method,
     date,
-    categoryId,
+    categoryId: category_id,
   }
 }
 
@@ -64,9 +86,6 @@ const parseAmountParam = (value: string | null) => {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : undefined
 }
-
-const errorResponse = (status: number, message: string) =>
-  HttpResponse.json({ message }, { status })
 
 const applyFilters = (
   items: Transaction[],
@@ -121,7 +140,7 @@ export const transactionHandlers = [
 
     const sorted = [...filtered].sort((a, b) => b.date.localeCompare(a.date))
 
-    return HttpResponse.json(sorted)
+    return HttpResponse.json({ data: sorted.map(toApiTransaction) })
   }),
 
   http.post('*/transactions', async ({ request }) => {
@@ -129,33 +148,46 @@ export const transactionHandlers = [
 
     const parsed = parseTransactionBody(await request.json())
     if (!parsed) {
-      return errorResponse(
-        400,
-        'Dados inválidos: informe descrição, valor positivo, tipo, método de pagamento, data (YYYY-MM-DD) e categoria existente',
+      return validationErrorResponse(
+        'Dados inválidos: informe descrição (mínimo 3), valor positivo, tipo, data (YYYY-MM-DD), método de pagamento e categoria',
       )
+    }
+
+    if (!getCategoryById(parsed.categoryId)) {
+      return errorResponse(404, 'Categoria não encontrada')
     }
 
     const transaction: Transaction = { id: crypto.randomUUID(), ...parsed }
     transactionStore = [transaction, ...transactionStore]
 
-    return HttpResponse.json(transaction, { status: 201 })
+    return HttpResponse.json(
+      {
+        message: 'Transação cadastrada com sucesso',
+        data: toApiTransaction(transaction),
+      },
+      { status: 201 },
+    )
   }),
 
   http.put('*/transactions/:id', async ({ params, request }) => {
     await applyMockDelay()
 
     const { id } = params
-    const existing = transactionStore.find((item) => item.id === id)
-    if (!existing) {
-      return errorResponse(404, 'Transação não encontrada')
-    }
 
     const parsed = parseTransactionBody(await request.json())
     if (!parsed) {
-      return errorResponse(
-        400,
-        'Dados inválidos: informe descrição, valor positivo, tipo, método de pagamento, data (YYYY-MM-DD) e categoria existente',
+      return validationErrorResponse(
+        'Dados inválidos: informe descrição (mínimo 3), valor positivo, tipo, data (YYYY-MM-DD), método de pagamento e categoria',
       )
+    }
+
+    if (!getCategoryById(parsed.categoryId)) {
+      return errorResponse(404, 'Categoria não encontrada')
+    }
+
+    const existing = transactionStore.find((item) => item.id === id)
+    if (!existing) {
+      return errorResponse(404, 'Transação não encontrada')
     }
 
     const updated: Transaction = { id: existing.id, ...parsed }
@@ -163,7 +195,10 @@ export const transactionHandlers = [
       item.id === existing.id ? updated : item,
     )
 
-    return HttpResponse.json(updated)
+    return HttpResponse.json({
+      message: 'Transação atualizada com sucesso',
+      data: toApiTransaction(updated),
+    })
   }),
 
   http.delete('*/transactions/:id', async ({ params }) => {
@@ -177,6 +212,6 @@ export const transactionHandlers = [
 
     transactionStore = transactionStore.filter((item) => item.id !== id)
 
-    return new HttpResponse(null, { status: 204 })
+    return HttpResponse.json({ message: 'Transação deletada com sucesso' })
   }),
 ]

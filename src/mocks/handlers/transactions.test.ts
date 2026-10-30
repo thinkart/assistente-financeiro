@@ -1,10 +1,20 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { Transaction } from '@/types'
+import type { PaymentMethod, Transaction, TransactionType } from '@/types'
 import { transactions as seedTransactions } from '../data'
 import { resetCategoryStore } from './categories'
 import { resetTransactionStore } from './transactions'
 
 const API_URL = 'http://127.0.0.1:5000'
+
+interface ApiTransaction {
+  id: string
+  description: string
+  amount: string
+  type: TransactionType
+  date: string
+  payment_method: PaymentMethod
+  category_id: string
+}
 
 const toIso = (date: Date) => {
   const year = date.getFullYear()
@@ -15,7 +25,8 @@ const toIso = (date: Date) => {
 
 const fetchTransactions = async (query = '') => {
   const response = await fetch(`${API_URL}/transactions${query}`)
-  return { response, body: (await response.json()) as Transaction[] }
+  const payload = (await response.json()) as { data: ApiTransaction[] }
+  return { response, body: payload.data }
 }
 
 const sendJson = (method: string, path: string, body: unknown) =>
@@ -35,9 +46,9 @@ const validPayload = {
   description: 'Compra de teste',
   amount: 99.9,
   type: 'expense' as const,
-  paymentMethod: 'pix' as const,
+  payment_method: 'pix' as const,
   date: '2026-09-15',
-  categoryId: 'lazer',
+  category_id: 'lazer',
 }
 
 describe('handlers de transações (AC-006)', () => {
@@ -51,6 +62,7 @@ describe('handlers de transações (AC-006)', () => {
 
     expect(response.status).toBe(200)
     expect(body.length).toBe(seedTransactions.length)
+    expect(typeof body[0]?.amount).toBe('string')
   })
 
   it('filtra por tipo', async () => {
@@ -66,7 +78,9 @@ describe('handlers de transações (AC-006)', () => {
     const { body } = await fetchTransactions('?categoryId=alimentacao')
 
     expect(body.length).toBeGreaterThan(0)
-    expect(body.every((item) => item.categoryId === 'alimentacao')).toBe(true)
+    expect(
+      body.every((item) => item.category_id === 'alimentacao'),
+    ).toBe(true)
   })
 
   it('filtra por período (startDate e endDate)', async () => {
@@ -86,9 +100,11 @@ describe('handlers de transações (AC-006)', () => {
   it('filtra por faixa de valor (minAmount e maxAmount)', async () => {
     const { body } = await fetchTransactions('?minAmount=100&maxAmount=500')
 
-    expect(body.every((item) => item.amount >= 100 && item.amount <= 500)).toBe(
-      true,
-    )
+    expect(
+      body.every(
+        (item) => Number(item.amount) >= 100 && Number(item.amount) <= 500,
+      ),
+    ).toBe(true)
     expect(body.length).toBe(
       seedTransactions.filter(
         (item) => item.amount >= 100 && item.amount <= 500,
@@ -128,48 +144,53 @@ describe('handlers de transações (AC-006)', () => {
 
     expect(response.status).toBe(201)
 
-    const created = (await response.json()) as Transaction
-    expect(created.id).toBeTruthy()
-    expect(created.description).toBe('Compra de teste')
-    expect(created.paymentMethod).toBe('pix')
+    const payload = (await response.json()) as {
+      message: string
+      data: ApiTransaction
+    }
+    expect(payload.message).toBe('Transação cadastrada com sucesso')
+    expect(payload.data.id).toBeTruthy()
+    expect(payload.data.description).toBe('Compra de teste')
+    expect(payload.data.payment_method).toBe('pix')
+    expect(payload.data.amount).toBe('99.90')
 
     const { body } = await fetchTransactions()
-    expect(body.some((item) => item.id === created.id)).toBe(true)
+    expect(body.some((item) => item.id === payload.data.id)).toBe(true)
   })
 
-  it('rejeita transação com categoria desconhecida (400)', async () => {
+  it('rejeita transação com categoria desconhecida (404)', async () => {
     const response = await sendJson('POST', '/transactions', {
       ...validPayload,
-      categoryId: 'nao-existe',
+      category_id: 'nao-existe',
     })
 
-    expect(response.status).toBe(400)
+    expect(response.status).toBe(404)
   })
 
-  it('rejeita payload inválido (400)', async () => {
+  it('rejeita payload inválido (422)', async () => {
     const withoutDescription = await sendJson('POST', '/transactions', {
       ...validPayload,
       description: '',
     })
-    expect(withoutDescription.status).toBe(400)
+    expect(withoutDescription.status).toBe(422)
 
     const negativeAmount = await sendJson('POST', '/transactions', {
       ...validPayload,
       amount: -10,
     })
-    expect(negativeAmount.status).toBe(400)
+    expect(negativeAmount.status).toBe(422)
 
     const invalidDate = await sendJson('POST', '/transactions', {
       ...validPayload,
       date: '15/09/2026',
     })
-    expect(invalidDate.status).toBe(400)
+    expect(invalidDate.status).toBe(422)
 
     const invalidPaymentMethod = await sendJson('POST', '/transactions', {
       ...validPayload,
-      paymentMethod: 'cheque',
+      payment_method: 'cheque',
     })
-    expect(invalidPaymentMethod.status).toBe(400)
+    expect(invalidPaymentMethod.status).toBe(422)
   })
 
   it('atualiza uma transação existente com 200', async () => {
@@ -180,9 +201,13 @@ describe('handlers de transações (AC-006)', () => {
 
     expect(response.status).toBe(200)
 
-    const updated = (await response.json()) as Transaction
-    expect(updated.id).toBe('t1')
-    expect(updated.description).toBe('Atualizada')
+    const payload = (await response.json()) as {
+      message: string
+      data: ApiTransaction
+    }
+    expect(payload.message).toBe('Transação atualizada com sucesso')
+    expect(payload.data.id).toBe('t1')
+    expect(payload.data.description).toBe('Atualizada')
 
     const { body } = await fetchTransactions()
     expect(body.find((item) => item.id === 't1')?.description).toBe(
@@ -200,15 +225,18 @@ describe('handlers de transações (AC-006)', () => {
     expect(response.status).toBe(404)
   })
 
-  it('remove uma transação com 204 e depois retorna 404', async () => {
+  it('remove uma transação com 200 e depois retorna 404', async () => {
     const response = await fetch(`${API_URL}/transactions/t30`, {
       method: 'DELETE',
     })
 
-    expect(response.status).toBe(204)
+    expect(response.status).toBe(200)
 
-    const { body } = await fetchTransactions()
-    expect(body.some((item) => item.id === 't30')).toBe(false)
+    const body = (await response.json()) as { message: string }
+    expect(body.message).toBe('Transação deletada com sucesso')
+
+    const { body: transactions } = await fetchTransactions()
+    expect(transactions.some((item) => item.id === 't30')).toBe(false)
 
     const again = await fetch(`${API_URL}/transactions/t30`, {
       method: 'DELETE',

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { reportsQueryKey } from '@/features/reports/query-keys'
 import {
   createTransaction,
   deleteTransaction,
@@ -19,7 +20,12 @@ export const useTransactions = (filters?: TransactionFilters) =>
 const useInvalidateTransactions = () => {
   const queryClient = useQueryClient()
 
-  return () => queryClient.invalidateQueries({ queryKey: ['transactions'] })
+  return async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['transactions'] }),
+      queryClient.invalidateQueries({ queryKey: reportsQueryKey }),
+    ])
+  }
 }
 
 export const useCreateTransaction = () => {

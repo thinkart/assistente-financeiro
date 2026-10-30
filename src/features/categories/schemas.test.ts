@@ -21,13 +21,24 @@ describe('schema do formulário de categoria (AC-007)', () => {
     expect(result.success).toBe(true)
   })
 
-  it('exige o nome com pelo menos 2 caracteres', () => {
+  it('exige o nome com pelo menos 3 caracteres', () => {
+    const message = 'Informe o nome da categoria (mínimo 3 caracteres)'
+
     expect(
       messagesOf(categorySchema.safeParse({ name: '  ', type: 'expense' })),
-    ).toContain('Informe o nome da categoria')
+    ).toContain(message)
     expect(
       messagesOf(categorySchema.safeParse({ name: 'A', type: 'expense' })),
-    ).toContain('Informe o nome da categoria')
+    ).toContain(message)
+    expect(
+      messagesOf(categorySchema.safeParse({ name: 'Pe', type: 'expense' })),
+    ).toContain(message)
+  })
+
+  it('aceita nome com exatamente 3 caracteres', () => {
+    expect(
+      categorySchema.safeParse({ name: 'Pet', type: 'expense' }).success,
+    ).toBe(true)
   })
 
   it('exige um tipo válido', () => {

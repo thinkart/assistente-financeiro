@@ -10,7 +10,10 @@ export const categoryTypeOptions: {
 ]
 
 export const categorySchema = z.object({
-  name: z.string().trim().min(2, 'Informe o nome da categoria'),
+  name: z
+    .string()
+    .trim()
+    .min(3, 'Informe o nome da categoria (mínimo 3 caracteres)'),
   type: z.enum(['income', 'expense'], { message: 'Selecione o tipo' }),
 })
 

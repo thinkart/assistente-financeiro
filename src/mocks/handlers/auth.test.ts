@@ -27,16 +27,20 @@ describe('handlers de auth (AC-004)', () => {
     expect(response.status).toBe(201)
 
     const body = (await response.json()) as {
-      id: string
-      name: string
-      email: string
-      cpf: string
-      phone: string
+      message: string
+      data: {
+        id: string
+        name: string
+        email: string
+        cpf: string
+        phone: string
+      }
     }
-    expect(body.id).toBeTruthy()
-    expect(body.name).toBe('Ana Souza')
-    expect(body.cpf).toBe('98765432100')
-    expect(body.phone).toBe('(11) 98888-7777')
+    expect(body.message).toBe('Usuário cadastrado com sucesso')
+    expect(body.data.id).toBeTruthy()
+    expect(body.data.name).toBe('Ana Souza')
+    expect(body.data.cpf).toBe('98765432100')
+    expect(body.data.phone).toBe('(11) 98888-7777')
   })
 
   it('rejeita registro com e-mail duplicado (400)', async () => {
@@ -63,6 +67,21 @@ describe('handlers de auth (AC-004)', () => {
     expect(response.status).toBe(400)
   })
 
+  it('rejeita registro com payload inválido (422)', async () => {
+    const response = await postJson('/auth/register', {
+      name: 'A',
+      cpf: '123',
+      email: 'invalido',
+      phone: '1',
+      password: '123',
+    })
+
+    expect(response.status).toBe(422)
+
+    const body = (await response.json()) as { detail: { msg: string }[] }
+    expect(body.detail[0].msg).toContain('Dados inválidos')
+  })
+
   it('faz login com credenciais válidas e retorna access_token', async () => {
     const response = await postJson('/auth/login', {
       email: 'demo@financas.dev',
@@ -74,9 +93,11 @@ describe('handlers de auth (AC-004)', () => {
     const body = (await response.json()) as {
       access_token: string
       token_type: string
+      message: string
     }
     expect(body.access_token).toBe(MOCK_ACCESS_TOKEN)
     expect(body.token_type).toBe('Bearer')
+    expect(body.message).toBe('Login efetuado com sucesso')
   })
 
   it('rejeita login com credenciais inválidas (401)', async () => {
@@ -95,8 +116,8 @@ describe('handlers de auth (AC-004)', () => {
 
     expect(response.status).toBe(200)
 
-    const body = (await response.json()) as { email: string }
-    expect(body.email).toBe('demo@financas.dev')
+    const body = (await response.json()) as { data: { email: string } }
+    expect(body.data.email).toBe('demo@financas.dev')
   })
 
   it('rejeita /auth/me sem token ou com token inválido (401)', async () => {

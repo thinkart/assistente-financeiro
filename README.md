@@ -2,7 +2,7 @@
 
 Front-end do projeto **Aplicação Financeira Pessoal**: React 18 + Vite + TypeScript, com Tailwind CSS, Vitest e ESLint/Prettier.
 
-O backend (Flask) ainda está em desenvolvimento. O app está preparado para alternar entre API mockada e API real apenas por variável de ambiente.
+O app funciona com a **API Flask real** ou com uma API mockada (MSW), alternando por variável de ambiente. O contrato real usa respostas envelopadas (`{ data }`), transações em snake_case (`category_id`, `payment_method`) e `amount` serializado como string — os serviços em `src/services/` normalizam tudo para os tipos do front.
 
 ## Requisitos
 
@@ -62,11 +62,21 @@ cp .env.example .env
 ```
 
 - O worker é registrado por `public/mockServiceWorker.js` e iniciado em `src/main.tsx` (`src/mocks/browser.ts`).
-- Handlers em `src/mocks/handlers/` cobrem o contrato: auth (`POST /auth/register`, `POST /auth/login`, `GET /auth/me`), categorias (CRUD), transações (CRUD + filtros `startDate`, `endDate`, `categoryId`, `type`, `minAmount`, `maxAmount`) e relatórios (`GET /reports/summary`, `GET /reports/by-category`).
+- Handlers em `src/mocks/handlers/` cobrem auth (`POST /auth/register`, `POST /auth/login`, `GET /auth/me`), categorias (CRUD) e transações (CRUD + filtros `startDate`, `endDate`, `categoryId`, `type`, `minAmount`, `maxAmount`) no mesmo formato da API real: envelopes `{ data }`, snake_case e status 200/404/409/422. **Relatórios não existem no backend**: `fetchSummary` e `fetchCategoryReport` agregam localmente a partir de `GET /transactions` (+ `GET /categories`).
 - Dados fake em `src/mocks/data/` (8 categorias e 30 transações nos últimos 6 meses); usuário de demonstração: **demo@financas.dev / 123456**.
 - A latência simulada é de 300 ms em dev e 0 nos testes (`src/mocks/delay.ts`); token ausente/inválido nas rotas protegidas responde **401**.
 - Para apontar para a API real, defina `VITE_USE_MOCK=false` no `.env` — o Axios (`src/services/api.ts`) passa a usar `VITE_API_URL` (ex.: `http://127.0.0.1:5000`, docs em `/apidocs/`).
 - Nos testes, o MSW roda via `src/mocks/server.ts` com `onUnhandledRequest: 'error'`, garantindo que nenhuma chamada escape do contrato.
+
+## Integração com a API real
+
+Com `VITE_USE_MOCK=false`, as requisições vão para `VITE_API_URL` (`http://127.0.0.1:5000`):
+
+- Respostas de sucesso vêm em `{ "data": ... }` (exceto `POST /auth/login`, que é flat).
+- Transações usam `category_id`/`payment_method` e `amount` como string; os serviços convertem para `categoryId`/`paymentMethod`/`number`.
+- Exclusões respondem **200** com `{ "message" }`; conflitos de categoria respondem **409**; validações do Pydantic respondem **422** com `{ "detail" }`.
+- Relatórios (`/reports/summary` e `/reports/by-category`) **não existem no backend**; são calculados no cliente a partir de `/transactions` + `/categories`.
+- O CORS do backend já permite `http://localhost:5173`; não é necessário proxy no Vite.
 
 ## Autenticação
 
@@ -83,7 +93,7 @@ Rotas e fluxo de sessão:
 
 A rota `/` (área privada) mostra o **Resumo financeiro do mês**:
 
-- Cards de **Receitas**, **Despesas** e **Saldo** do mês atual, via `GET /reports/summary?startDate&endDate` (período calculado com **date-fns**).
+- Cards de **Receitas**, **Despesas** e **Saldo** do mês atual, calculados no cliente a partir de `GET /transactions?startDate&endDate` (período calculado com **date-fns**).
 - Gráfico **Resumo Financeiro** com **Recharts**: linhas de **Receita** (azul), **Despesa** (vermelha) e **Saldo do mês** (verde) dos últimos 6 meses, agregados no cliente a partir de `GET /transactions`; as cores vêm dos tokens `--chart-income`, `--chart-expense` e `--chart-balance` e atualizam junto com o tema.
 - Card **Últimas transações** com as 5 mais recentes (sinal e tokens por tipo) e link **Ver todas** → `/transacoes`.
 - Estados de loading, erro (com "Tentar novamente") e vazio.
@@ -105,7 +115,7 @@ A rota `/categorias` (área privada) entrega o CRUD de categorias:
 
 - Lista com **badge colorido (Nome), Tipo e Ações (Editar/Excluir)** em tabela no desktop e cards no mobile.
 - Modal de criar/editar (Nome + Tipo Receita/Despesa) com validação zod e toasts de sucesso/erro.
-- **Exclusão protegida**: categorias **em uso** por transações não podem ser excluídas — o mock responde 400 ("Categoria em uso por N transação(ões)") e o diálogo exibe a mensagem.
+- **Exclusão protegida**: categorias **em uso** por transações não podem ser excluídas — a API responde **409** ("Erro a categoria não pode ser excluída pois há transações vinculadas") e o diálogo exibe a mensagem.
 - Cores: 8 tokens semânticos (`--category-1..8` no `globals.css`/Tailwind) resolvidos de forma determinística em `src/features/categories/colors.ts` (mapa + fallback por hash) e exibidos via `CategoryBadge` — também aplicados na tabela de transações.
 - Estados de loading, erro (com "Tentar novamente") e vazio.
 
@@ -116,7 +126,7 @@ A rota `/relatorios` (área privada) analisa os valores por categoria:
 - Filtros de **Período** (De/Até) e **Tipo** (**Despesas** padrão / Receitas) com **Aplicar filtros**; período vazio considera todo o histórico.
 - Cards de Receitas/Despesas/Saldo do período filtrado (reutilizando os `KpiCards` do dashboard).
 - Gráfico de **barras horizontais** por categoria (Recharts; cor por tipo lida das CSS variables) e tabela de **Detalhamento por categoria** (total em BRL e percentual).
-- Dados via `GET /reports/by-category` (e `GET /reports/summary` para os cards); estados de loading, erro (com "Tentar novamente") e vazio ("Nenhum dado no período.").
+- Dados agregados no cliente a partir de `GET /transactions` (filtros de período/tipo) e `GET /categories` (nomes); estados de loading, erro (com "Tentar novamente") e vazio ("Nenhum dado no período.").
 
 ## Navegação e layout
 
@@ -171,7 +181,7 @@ O `public/.htaccess` faz o fallback de SPA no Apache (refresh em `/transacoes`, 
 
 - [x] Projeto roda com `npm install && npm run dev`
 - [x] Todas as telas navegáveis: Login/Cadastro, Dashboard, Transações, Categorias e Relatórios
-- [x] API 100% mockada via MSW (nenhuma chamada real ao Flask)
+- [x] Funciona com a API Flask real e com MSW, alternando por `VITE_USE_MOCK`
 - [x] README com execução, alternância mock/API real e credenciais de demonstração
 - [x] Tipos TypeScript em `src/types/` refletindo o contrato
 - [x] Autenticação com token persistido e rotas privadas protegidas

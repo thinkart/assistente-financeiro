@@ -46,6 +46,7 @@ describe('serviço de transações (AC-003)', () => {
     const created = await createTransaction(newTransaction)
 
     expect(created.id).toBeTruthy()
+    expect(created.amount).toBe(50)
     expect(created.paymentMethod).toBe('debito')
 
     const transactions = await fetchTransactions({ search: 'Nova despesa' })

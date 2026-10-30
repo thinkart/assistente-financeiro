@@ -163,14 +163,16 @@ describe('CategoriesPage (AC-004, AC-006, AC-008)', () => {
     fireEvent.click(within(row).getByRole('button', { name: 'Excluir' }))
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(/em uso/i)
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /não pode ser excluída/i,
+    )
     expect(
       screen.getByRole('dialog', { name: 'Excluir categoria' }),
     ).toBeInTheDocument()
   })
 
   it('mostra o estado vazio quando não há categorias', async () => {
-    server.use(http.get('*/categories', () => HttpResponse.json([])))
+    server.use(http.get('*/categories', () => HttpResponse.json({ data: [] })))
 
     renderPage()
 

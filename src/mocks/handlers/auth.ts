@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import type { AuthResponse, User } from '@/types'
 import { applyMockDelay } from '../delay'
+import { errorResponse, validationErrorResponse } from './responses'
 
 export const MOCK_ACCESS_TOKEN = 'mock-access-token'
 
@@ -29,9 +30,6 @@ const toPublicUser = ({ id, name, email, cpf, phone }: StoredUser): User => ({
   phone,
 })
 
-const errorResponse = (status: number, message: string) =>
-  HttpResponse.json({ message }, { status })
-
 interface RegisterBody {
   name?: unknown
   cpf?: unknown
@@ -54,7 +52,7 @@ export const authHandlers = [
 
     if (
       typeof name !== 'string' ||
-      name.trim() === '' ||
+      name.trim().length < 3 ||
       typeof cpf !== 'string' ||
       cpf.replace(/\D/g, '').length !== 11 ||
       typeof email !== 'string' ||
@@ -62,11 +60,10 @@ export const authHandlers = [
       typeof phone !== 'string' ||
       phone.replace(/\D/g, '').length < 10 ||
       typeof password !== 'string' ||
-      password === ''
+      password.length < 6
     ) {
-      return errorResponse(
-        400,
-        'Nome, CPF (11 dígitos), e-mail, telefone e senha são obrigatórios',
+      return validationErrorResponse(
+        'Dados inválidos: nome (mínimo 3), CPF (11 dígitos), e-mail, telefone (10+ dígitos) e senha (mínimo 6)',
       )
     }
 
@@ -88,7 +85,13 @@ export const authHandlers = [
     }
     users.push(user)
 
-    return HttpResponse.json(toPublicUser(user), { status: 201 })
+    return HttpResponse.json(
+      {
+        message: 'Usuário cadastrado com sucesso',
+        data: toPublicUser(user),
+      },
+      { status: 201 },
+    )
   }),
 
   http.post('*/auth/login', async ({ request }) => {
@@ -110,6 +113,7 @@ export const authHandlers = [
     const auth: AuthResponse = {
       access_token: MOCK_ACCESS_TOKEN,
       token_type: 'Bearer',
+      message: 'Login efetuado com sucesso',
     }
 
     return HttpResponse.json(auth)
@@ -130,6 +134,6 @@ export const authHandlers = [
       return errorResponse(401, 'Sessão inválida')
     }
 
-    return HttpResponse.json(toPublicUser(user))
+    return HttpResponse.json({ data: toPublicUser(user) })
   }),
 ]

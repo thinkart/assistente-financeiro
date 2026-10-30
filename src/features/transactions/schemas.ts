@@ -20,7 +20,10 @@ export const paymentMethodOptions: { value: PaymentMethod; label: string }[] = [
 ]
 
 export const transactionSchema = z.object({
-  description: z.string().trim().min(1, 'Informe a descrição'),
+  description: z
+    .string()
+    .trim()
+    .min(3, 'Informe a descrição (mínimo 3 caracteres)'),
   amount: z
     .string()
     .trim()

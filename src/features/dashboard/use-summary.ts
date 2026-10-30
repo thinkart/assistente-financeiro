@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchSummary, type SummaryPeriod } from '@/services/reports'
+import { reportsQueryKey } from '@/features/reports/query-keys'
 
 export const summaryQueryKey = (period?: SummaryPeriod) =>
-  ['reports', 'summary', period ?? {}] as const
+  [...reportsQueryKey, 'summary', period ?? {}] as const
 
 export const useSummary = (period?: SummaryPeriod) =>
   useQuery({
