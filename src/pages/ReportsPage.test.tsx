@@ -92,10 +92,7 @@ describe('ReportsPage (AC-001, AC-007)', () => {
 
   it('mostra o estado de erro e permite tentar novamente', async () => {
     server.use(
-      http.get('*/reports/summary', () =>
-        HttpResponse.json({ message: 'erro' }, { status: 500 }),
-      ),
-      http.get('*/reports/by-category', () =>
+      http.get('*/transactions', () =>
         HttpResponse.json({ message: 'erro' }, { status: 500 }),
       ),
     )

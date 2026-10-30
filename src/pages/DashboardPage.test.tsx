@@ -71,9 +71,6 @@ describe('DashboardPage (AC-006, AC-007)', () => {
 
   it('mostra o estado de erro e permite tentar novamente', async () => {
     server.use(
-      http.get('*/reports/summary', () =>
-        HttpResponse.json({ message: 'erro' }, { status: 500 }),
-      ),
       http.get('*/transactions', () =>
         HttpResponse.json({ message: 'erro' }, { status: 500 }),
       ),
