@@ -1,20 +1,126 @@
-# Assistente Financeiro
+# 💰 Assistente Financeiro
 
-Front-end do projeto **Aplicação Financeira Pessoal**: React 18 + Vite + TypeScript, com Tailwind CSS, Vitest e ESLint/Prettier.
+Front-end do projeto **Aplicação Financeira Pessoal**: React 18 + Vite + TypeScript, com Tailwind CSS, Vitest e ESLint/Prettier. Este repositório contém apenas o front-end; o backend Flask + SQLite é um projeto separado.
 
 O app funciona com a **API Flask real** ou com uma API mockada (MSW), alternando por variável de ambiente. O contrato real usa respostas envelopadas (`{ data }`), transações em snake_case (`category_id`, `payment_method`) e `amount` serializado como string — os serviços em `src/services/` normalizam tudo para os tipos do front.
 
-## Requisitos
+## 📚 Unidade Curricular
+
+Projeto Integrador — Boas Práticas de Desenvolvimento de Software
+
+## 🎯 Tema
+
+Aplicação Financeira Pessoal
+
+## 📋 Sobre o Projeto
+
+A aplicação tem como objetivo oferecer uma solução simples e acessível para o gerenciamento de finanças pessoais, transformando os registros de movimentações em uma experiência organizada, centralizada e orientada à tomada de decisão.
+
+Por meio da aplicação, o usuário poderá registrar e organizar suas transações financeiras, classificá-las por categorias e visualizar um resumo de sua situação financeira. Além disso, será possível utilizar filtros e relatórios para facilitar a análise das movimentações.
+
+## 💻 Tecnologias e Justificativas
+
+As principais tecnologias utilizadas no desenvolvimento do projeto são:
+
+| Camada         | Tecnologia |
+| -------------- | ---------- |
+| Front-end      | React      |
+| Back-end       | Python     |
+| Banco de Dados | SQLite     |
+
+### 🐍 Python
+
+O Python foi escolhido para o desenvolvimento do back-end devido à sua presença significativa no conteúdo do curso. A linguagem foi abordada em diferentes unidades curriculares, como:
+
+- Pensamento Computacional;
+- Práticas de Programação;
+- Introdução à Ciência de Dados;
+- Estruturas de Dados.
+
+Dessa forma, a utilização do Python permite aplicar conhecimentos adquiridos ao longo do curso, além de facilitar o desenvolvimento e a manutenção da aplicação pela familiaridade dos integrantes da equipe com a linguagem.
+
+### ⚛️ React
+
+O React foi escolhido para o desenvolvimento do front-end devido à sua facilidade de utilização, acessibilidade e possibilidade de evolução junto ao crescimento da aplicação.
+
+Além disso, a tecnologia apresenta uma curva de aprendizado considerada adequada para os integrantes do grupo, permitindo que todos possam contribuir para o desenvolvimento do projeto.
+
+### 🗄️ SQLite
+
+O SQLite foi escolhido como banco de dados principalmente pela sua simplicidade de configuração e utilização.
+
+As informações são armazenadas diretamente em um único arquivo local, dispensando a necessidade de instalação e configuração de um servidor de banco de dados. Essa característica torna o SQLite uma alternativa adequada para o contexto do projeto, facilitando tanto o desenvolvimento quanto a execução da aplicação em diferentes ambientes.
+
+## 👥 Equipe
+
+- FELIPE SANTOS DE ALENCAR
+- ALISON MORETTO DIAS
+- GIOVANNA BASTOS RODRIGUES
+- IAGO FARIA DOS SANTOS
+- LEANDRO MORAIS DOS SANTOS
+- MARCELO LUCIANO SILVA ARAUJO
+- MICHAEL DE SOUZA TEIXEIRA
+- THAMIRES SANTOS MUNIZ
+
+## 🚀 Status do Projeto
+
+🟡 Em desenvolvimento
+
+O projeto está sendo desenvolvido como parte da Unidade Curricular Projeto Integrador — Boas Práticas de Desenvolvimento de Software.
+
+## ⚙️ Como iniciar o projeto localmente
+
+Este guia cobre apenas o front-end. O backend Flask (API + SQLite) deve ser executado separadamente — consulte o README do repositório do backend e o contrato em [`docs/API_BACKEND.md`](docs/API_BACKEND.md).
+
+### 1. Clonar o repositório
+
+```bash
+git clone https://github.com/thinkart/assistente-financeiro.git
+cd assistente-financeiro
+```
+
+### 2. Requisitos
 
 - Node.js 18+ e npm
 
-## Instalação
+### 3. Instalar as dependências
 
 ```bash
 npm install
 ```
 
-## Scripts
+### 4. Configurar as variáveis de ambiente
+
+Copie o arquivo de exemplo e ajuste conforme necessário:
+
+```bash
+cp .env.example .env
+```
+
+| Variável        | Padrão                  | Descrição                                                                   |
+| --------------- | ----------------------- | --------------------------------------------------------------------------- |
+| `VITE_API_URL`  | `http://127.0.0.1:5000` | Base URL do backend Flask                                                   |
+| `VITE_USE_MOCK` | `true`                  | `true` usa a API mockada; `false` aponta as requisições para `VITE_API_URL` |
+
+O arquivo `.env` é ignorado pelo Git; use sempre o `.env.example` como referência dos valores esperados.
+
+### 5. Iniciar a aplicação
+
+```bash
+npm run dev
+```
+
+O app estará disponível em `http://localhost:5173`.
+
+Usuário de demonstração: **demo@financas.dev / 123456**.
+
+### 6. Apontar para a API real (opcional)
+
+Com o backend Flask em execução, defina `VITE_USE_MOCK=false` no `.env`. As requisições passam a ir para `VITE_API_URL` (`http://127.0.0.1:5000`), cuja documentação está em `http://127.0.0.1:5000/apidocs/`.
+
+> O passo a passo de instalação, configuração e migrations do backend não faz parte deste repositório: consulte o README do projeto Flask.
+
+### Scripts disponíveis
 
 | Comando           | Descrição                                            |
 | ----------------- | ---------------------------------------------------- |
@@ -37,21 +143,6 @@ npm install
 | `/relatorios` | Privada | Relatórios por categoria     |
 
 As rotas privadas ficam atrás de `RequireAuth` + `AppLayout`; sem sessão, redirecionam para `/login` preservando a rota de origem.
-
-## Variáveis de ambiente
-
-Copie o arquivo de exemplo e ajuste conforme necessário:
-
-```bash
-cp .env.example .env
-```
-
-| Variável        | Padrão                  | Descrição                                                                   |
-| --------------- | ----------------------- | --------------------------------------------------------------------------- |
-| `VITE_API_URL`  | `http://127.0.0.1:5000` | Base URL do backend Flask                                                   |
-| `VITE_USE_MOCK` | `true`                  | `true` usa a API mockada; `false` aponta as requisições para `VITE_API_URL` |
-
-O arquivo `.env` é ignorado pelo Git; use sempre o `.env.example` como referência dos valores esperados.
 
 ## API mockada (MSW)
 
