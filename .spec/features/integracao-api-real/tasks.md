@@ -10,4 +10,4 @@
 - [x] **T-004:** Reescrever `src/services/reports.ts` com agregação local (`/transactions` + `/categories`), remover `mocks/handlers/reports.ts` e seu teste do índice, atualizar overrides de `DashboardPage.test.tsx`/`ReportsPage.test.tsx` — *(cobre AC-004, AC-005)*
 - [x] **T-005:** Invalidar `['reports']` nas mutações de `use-categories.ts` e `use-transactions.ts`, com teste — *(cobre AC-007)*
 - [x] **T-006:** Alinhar mínimos dos schemas de categoria (3) e transação (3) e atualizar os testes de schema — *(cobre AC-006)*
-- [ ] **T-007:** Atualizar `README.md` e `docs/API_BACKEND.md`, ajustar testes de documentação e validar `npm test`, `npm run lint` e `npm run build` — *(cobre AC-008)*
+- [x] **T-007:** Atualizar `README.md` e `docs/API_BACKEND.md`, ajustar testes de documentação e validar `npm test`, `npm run lint` e `npm run build` — *(cobre AC-008)*
