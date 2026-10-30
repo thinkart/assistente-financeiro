@@ -95,7 +95,9 @@ describe('TransactionForm (AC-008)', () => {
 
     clickSave()
 
-    expect(await screen.findByText('Informe a descrição')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Informe a descrição (mínimo 3 caracteres)'),
+    ).toBeInTheDocument()
     expect(screen.getByText('Informe o valor')).toBeInTheDocument()
     expect(screen.getByText('Selecione o tipo')).toBeInTheDocument()
     expect(screen.getByText('Selecione a categoria')).toBeInTheDocument()

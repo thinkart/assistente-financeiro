@@ -59,7 +59,9 @@ describe('CategoryForm (AC-007)', () => {
     clickSave()
 
     expect(
-      await screen.findByText('Informe o nome da categoria'),
+      await screen.findByText(
+        'Informe o nome da categoria (mínimo 3 caracteres)',
+      ),
     ).toBeInTheDocument()
     expect(screen.getByText('Selecione o tipo')).toBeInTheDocument()
   })
