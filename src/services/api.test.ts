@@ -26,10 +26,10 @@ describe('sessão e interceptors (AC-005)', () => {
   it('anexa Authorization Bearer quando há token armazenado', async () => {
     setStoredToken('mock-access-token')
 
-    const response = await api.get<{ email: string }>('/auth/me')
+    const response = await api.get<{ data: { email: string } }>('/auth/me')
 
     expect(response.status).toBe(200)
-    expect(response.data.email).toBe('demo@financas.dev')
+    expect(response.data.data.email).toBe('demo@financas.dev')
   })
 
   it('em 401 de rota autenticada, limpa o token e dispara financas:unauthorized', async () => {
