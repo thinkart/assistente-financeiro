@@ -5,7 +5,9 @@ import { TransactionForm } from './TransactionForm'
 
 const categories: Category[] = [
   { id: 'salario', name: 'Salário', type: 'income' },
+  { id: 'freelance', name: 'Freelance', type: 'income' },
   { id: 'alimentacao', name: 'Alimentação', type: 'expense' },
+  { id: 'transporte', name: 'Transporte', type: 'expense' },
 ]
 
 const existingTransaction: Transaction = {
@@ -90,12 +92,41 @@ describe('TransactionForm (AC-008)', () => {
     ).toBeInTheDocument()
   })
 
+  it('desativa o campo de categoria e o mantém indisponível até que o tipo seja selecionado', () => {
+    renderForm()
+
+    const categorySelect = screen.getByLabelText('Categoria')
+    expect(categorySelect).toBeDisabled()
+    expect(screen.getByText('Selecione o tipo primeiro')).toBeInTheDocument()
+
+    fill('Tipo', 'expense')
+
+    expect(categorySelect).not.toBeDisabled()
+    expect(screen.getByRole('option', { name: 'Alimentação' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Transporte' })).toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: 'Salário' })).not.toBeInTheDocument()
+  })
+
+  it('limpa a categoria selecionada ao alterar o tipo de transação', () => {
+    renderForm()
+
+    fill('Tipo', 'income')
+    fill('Categoria', 'salario')
+    expect(screen.getByLabelText('Categoria')).toHaveValue('salario')
+
+    fill('Tipo', 'expense')
+
+    expect(screen.getByLabelText('Categoria')).toHaveValue('')
+  })
+
   it('valida os campos obrigatórios', async () => {
     renderForm()
 
     clickSave()
 
-    expect(await screen.findByText('Informe a descrição')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Informe a descrição (mínimo 3 caracteres)'),
+    ).toBeInTheDocument()
     expect(screen.getByText('Informe o valor')).toBeInTheDocument()
     expect(screen.getByText('Selecione o tipo')).toBeInTheDocument()
     expect(screen.getByText('Selecione a categoria')).toBeInTheDocument()

@@ -45,11 +45,19 @@ export function TransactionForm({
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
     defaultValues: { description: '', amount: '' },
   })
+
+  const selectedType = watch('type')
+
+  const filteredCategories = categories.filter(
+    (category) => !selectedType || category.type === selectedType
+  )
 
   useEffect(() => {
     if (!open) return
@@ -178,7 +186,12 @@ export function TransactionForm({
                 id="transaction-type"
                 className={selectClassName}
                 defaultValue=""
-                {...register('type')}
+                {...register('type', {
+                  onChange: () => {
+                    // Opcional: limpa a categoria ao alterar o tipo para evitar inconsistências
+                    setValue('categoryId', '')
+                  },
+                })}
               >
                 <option value="" disabled>
                   Selecione
@@ -208,11 +221,12 @@ export function TransactionForm({
                 className={selectClassName}
                 defaultValue=""
                 {...register('categoryId')}
+                disabled={!selectedType}
               >
                 <option value="" disabled>
-                  Selecione
+                  {selectedType ? 'Selecione' : 'Selecione o tipo primeiro'}
                 </option>
-                {categories.map((category) => (
+                {filteredCategories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
