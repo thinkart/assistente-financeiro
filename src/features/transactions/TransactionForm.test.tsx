@@ -120,21 +120,21 @@ describe('TransactionForm (AC-008)', () => {
   })
 
   it('valida os campos obrigatórios', async () => {
-    renderForm()
+      renderForm()
 
-    clickSave()
+      clickSave()
 
-    expect(
-      await screen.findByText('Informe a descrição (mínimo 3 caracteres)'),
-    ).toBeInTheDocument()
-    expect(screen.getByText('Informe o valor')).toBeInTheDocument()
-    expect(screen.getByText('Selecione o tipo')).toBeInTheDocument()
-    expect(screen.getByText('Selecione a categoria')).toBeInTheDocument()
-    expect(
-      screen.getByText('Selecione o método de pagamento'),
-    ).toBeInTheDocument()
-    expect(screen.getByText('Informe a data')).toBeInTheDocument()
-  })
+      expect(
+        await screen.findByText('Informe a descrição'), // <--- Removido "(mínimo 3 caracteres)"
+      ).toBeInTheDocument()
+      expect(screen.getByText('Informe o valor')).toBeInTheDocument()
+      expect(screen.getByText('Selecione o tipo')).toBeInTheDocument()
+      expect(screen.getByText('Selecione a categoria')).toBeInTheDocument()
+      expect(
+        screen.getByText('Selecione o método de pagamento'),
+      ).toBeInTheDocument()
+      expect(screen.getByText('Informe a data')).toBeInTheDocument()
+    })
 
   it('salva convertendo o valor e fecha o modal', async () => {
     const { onSubmit, onOpenChange } = renderForm()
