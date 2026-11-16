@@ -1,6 +1,6 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -42,15 +42,46 @@ export function TransactionForm({
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const {
+    control,
     register,
     handleSubmit,
     reset,
+    setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
     defaultValues: { description: '', amount: '' },
   })
 
+  // Observa o tipo selecionado para filtrar as categorias compatíveis.
+  const selectedType = useWatch({ control, name: 'type' })
+  const availableCategories = useMemo(
+    () =>
+      selectedType
+        ? categories.filter((category) => category.type === selectedType)
+        : categories,
+    [categories, selectedType],
+  )
+
+  // Limpa a categoria somente quando o usuário troca o tipo por um incompatível.
+  // O ref evita limpar a categoria ao abrir a edição (reset do formulário).
+  useEffect(() => {
+    if (!open || !selectedType) return
+
+    const currentCategoryId = getValues('categoryId')
+    if (!currentCategoryId) return
+
+    const currentCategory = categories.find(
+      (category) => category.id === currentCategoryId,
+    )
+
+    if (!currentCategory || currentCategory.type !== selectedType) {
+      setValue('categoryId', '')
+    }
+  }, [open, selectedType, categories, getValues, setValue])
+
+  // Efeito para preencher o formulário ao abrir com uma transação existente
   useEffect(() => {
     if (!open) return
 
@@ -62,7 +93,6 @@ export function TransactionForm({
         categoryId: transaction.categoryId,
         paymentMethod: transaction.paymentMethod,
         date: transaction.date,
-        repetition: 'none',
       })
     } else {
       reset()
@@ -212,7 +242,7 @@ export function TransactionForm({
                 <option value="" disabled>
                   Selecione
                 </option>
-                {categories.map((category) => (
+                {availableCategories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
@@ -252,22 +282,6 @@ export function TransactionForm({
                   {errors.paymentMethod.message}
                 </p>
               )}
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="transaction-repetition"
-                className="text-sm font-medium"
-              >
-                Repetição
-              </label>
-              <select
-                id="transaction-repetition"
-                className={selectClassName}
-                {...register('repetition')}
-              >
-                <option value="none">Não repetir</option>
-              </select>
             </div>
           </div>
 

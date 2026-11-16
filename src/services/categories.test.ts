@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import { MOCK_ACCESS_TOKEN } from '@/mocks/handlers/auth'
 import { resetCategoryStore } from '@/mocks/handlers/categories'
 import { resetTransactionStore } from '@/mocks/handlers/transactions'
+import { setStoredToken } from './token'
 import type { CategoryInput } from '@/types'
 import {
   createCategory,
@@ -13,6 +15,7 @@ const newCategory: CategoryInput = { name: 'Pets', type: 'expense' }
 
 describe('serviço de categorias (AC-003)', () => {
   beforeEach(() => {
+    setStoredToken(MOCK_ACCESS_TOKEN)
     resetCategoryStore()
     resetTransactionStore()
   })

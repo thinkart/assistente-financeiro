@@ -3,9 +3,12 @@ import type { Category } from '@/types'
 import { resetCategoryStore } from './categories'
 
 const API_URL = 'http://127.0.0.1:5000'
+const authHeaders = { Authorization: 'Bearer mock-access-token' }
 
 const getCategories = async () => {
-  const response = await fetch(`${API_URL}/categories`)
+  const response = await fetch(`${API_URL}/categories`, {
+    headers: authHeaders,
+  })
   const payload = (await response.json()) as { data: Category[] }
   return { response, body: payload.data }
 }
@@ -13,7 +16,7 @@ const getCategories = async () => {
 const sendJson = (method: string, path: string, body: unknown) =>
   fetch(`${API_URL}${path}`, {
     method,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { ...authHeaders, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
 
@@ -126,6 +129,7 @@ describe('handlers de categorias (AC-005)', () => {
 
     const response = await fetch(`${API_URL}/categories/${created.id}`, {
       method: 'DELETE',
+      headers: authHeaders,
     })
 
     expect(response.status).toBe(200)
@@ -140,6 +144,7 @@ describe('handlers de categorias (AC-005)', () => {
   it('bloqueia a remoção de categoria em uso com 409', async () => {
     const response = await fetch(`${API_URL}/categories/educacao`, {
       method: 'DELETE',
+      headers: authHeaders,
     })
 
     expect(response.status).toBe(409)
@@ -154,6 +159,7 @@ describe('handlers de categorias (AC-005)', () => {
   it('retorna 404 ao remover categoria inexistente', async () => {
     const response = await fetch(`${API_URL}/categories/nao-existe`, {
       method: 'DELETE',
+      headers: authHeaders,
     })
 
     expect(response.status).toBe(404)

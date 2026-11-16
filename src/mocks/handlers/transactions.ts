@@ -2,16 +2,50 @@ import { http, HttpResponse } from 'msw'
 import type { PaymentMethod, Transaction, TransactionType } from '@/types'
 import { transactions as seedTransactions } from '../data'
 import { applyMockDelay } from '../delay'
+import { getAuthenticatedUserId } from './auth'
 import { getCategoryById } from './categories'
 import { errorResponse, validationErrorResponse } from './responses'
 
-let transactionStore: Transaction[] = [...seedTransactions]
+const TRANSACTION_STORES_KEY = 'financas-mock-transactions'
 
-export const resetTransactionStore = () => {
-  transactionStore = [...seedTransactions]
+const transactionStores = new Map<string, Transaction[]>(
+  (() => {
+    try {
+      const stored = localStorage.getItem(TRANSACTION_STORES_KEY)
+      return stored
+        ? Object.entries(JSON.parse(stored) as Record<string, Transaction[]>)
+        : [['u-demo', [...seedTransactions]]]
+    } catch {
+      return [['u-demo', [...seedTransactions]]]
+    }
+  })(),
+)
+
+const persistTransactionStores = () => {
+  try {
+    localStorage.setItem(
+      TRANSACTION_STORES_KEY,
+      JSON.stringify(Object.fromEntries(transactionStores)),
+    )
+  } catch {
+    /* Local persistence is optional in private browsing contexts. */
+  }
 }
 
-export const getTransactions = () => [...transactionStore]
+export const resetTransactionStore = () => {
+  transactionStores.clear()
+  transactionStores.set('u-demo', [...seedTransactions])
+  persistTransactionStores()
+}
+
+export const getTransactions = (userId = 'u-demo') => [
+  ...(transactionStores.get(userId) ?? []),
+]
+
+const setTransactions = (userId: string, transactions: Transaction[]) => {
+  transactionStores.set(userId, transactions)
+  persistTransactionStores()
+}
 
 interface TransactionBody {
   description?: unknown
@@ -121,22 +155,30 @@ const applyFilters = (
     return true
   })
 
+export const getFilteredTransactions = (
+  userId: string,
+  params: URLSearchParams,
+) =>
+  applyFilters(getTransactions(userId), {
+    search: params.get('search')?.trim() || undefined,
+    startDate: params.get('startDate') ?? undefined,
+    endDate: params.get('endDate') ?? undefined,
+    categoryId: params.get('categoryId') ?? undefined,
+    type: isTransactionType(params.get('type'))
+      ? (params.get('type') as TransactionType)
+      : undefined,
+    minAmount: parseAmountParam(params.get('minAmount')),
+    maxAmount: parseAmountParam(params.get('maxAmount')),
+  })
+
 export const transactionHandlers = [
   http.get('*/transactions', async ({ request }) => {
     await applyMockDelay()
+    const userId = getAuthenticatedUserId(request)
+    if (!userId) return errorResponse(401, 'Token inválido ou ausente')
 
     const url = new URL(request.url)
-    const typeParam = url.searchParams.get('type')
-
-    const filtered = applyFilters(transactionStore, {
-      search: url.searchParams.get('search')?.trim() || undefined,
-      startDate: url.searchParams.get('startDate') ?? undefined,
-      endDate: url.searchParams.get('endDate') ?? undefined,
-      categoryId: url.searchParams.get('categoryId') ?? undefined,
-      type: isTransactionType(typeParam) ? typeParam : undefined,
-      minAmount: parseAmountParam(url.searchParams.get('minAmount')),
-      maxAmount: parseAmountParam(url.searchParams.get('maxAmount')),
-    })
+    const filtered = getFilteredTransactions(userId, url.searchParams)
 
     const sorted = [...filtered].sort((a, b) => b.date.localeCompare(a.date))
 
@@ -145,6 +187,8 @@ export const transactionHandlers = [
 
   http.post('*/transactions', async ({ request }) => {
     await applyMockDelay()
+    const userId = getAuthenticatedUserId(request)
+    if (!userId) return errorResponse(401, 'Token inválido ou ausente')
 
     const parsed = parseTransactionBody(await request.json())
     if (!parsed) {
@@ -153,12 +197,12 @@ export const transactionHandlers = [
       )
     }
 
-    if (!getCategoryById(parsed.categoryId)) {
+    if (!getCategoryById(parsed.categoryId, userId)) {
       return errorResponse(404, 'Categoria não encontrada')
     }
 
     const transaction: Transaction = { id: crypto.randomUUID(), ...parsed }
-    transactionStore = [transaction, ...transactionStore]
+    setTransactions(userId, [transaction, ...getTransactions(userId)])
 
     return HttpResponse.json(
       {
@@ -171,6 +215,8 @@ export const transactionHandlers = [
 
   http.put('*/transactions/:id', async ({ params, request }) => {
     await applyMockDelay()
+    const userId = getAuthenticatedUserId(request)
+    if (!userId) return errorResponse(401, 'Token inválido ou ausente')
 
     const { id } = params
 
@@ -181,19 +227,20 @@ export const transactionHandlers = [
       )
     }
 
-    if (!getCategoryById(parsed.categoryId)) {
+    if (!getCategoryById(parsed.categoryId, userId)) {
       return errorResponse(404, 'Categoria não encontrada')
     }
 
-    const existing = transactionStore.find((item) => item.id === id)
+    const userTransactions = getTransactions(userId)
+    const existing = userTransactions.find((item) => item.id === id)
     if (!existing) {
       return errorResponse(404, 'Transação não encontrada')
     }
 
     const updated: Transaction = { id: existing.id, ...parsed }
-    transactionStore = transactionStore.map((item) =>
+    setTransactions(userId, userTransactions.map((item) =>
       item.id === existing.id ? updated : item,
-    )
+    ))
 
     return HttpResponse.json({
       message: 'Transação atualizada com sucesso',
@@ -201,16 +248,22 @@ export const transactionHandlers = [
     })
   }),
 
-  http.delete('*/transactions/:id', async ({ params }) => {
+  http.delete('*/transactions/:id', async ({ params, request }) => {
     await applyMockDelay()
+    const userId = getAuthenticatedUserId(request)
+    if (!userId) return errorResponse(401, 'Token inválido ou ausente')
 
     const { id } = params
-    const exists = transactionStore.some((item) => item.id === id)
+    const userTransactions = getTransactions(userId)
+    const exists = userTransactions.some((item) => item.id === id)
     if (!exists) {
       return errorResponse(404, 'Transação não encontrada')
     }
 
-    transactionStore = transactionStore.filter((item) => item.id !== id)
+    setTransactions(
+      userId,
+      userTransactions.filter((item) => item.id !== id),
+    )
 
     return HttpResponse.json({ message: 'Transação deletada com sucesso' })
   }),

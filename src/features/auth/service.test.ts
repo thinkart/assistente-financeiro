@@ -22,9 +22,9 @@ describe('serviço de auth (AC-001)', () => {
 
     const user = await registerRequest({
       name: 'Usuário Serviço',
-      cpf: '98765432100',
+      cpf: '11144477735',
       email,
-      phone: '(11) 98888-7777',
+      phone: '11988887777',
       password: '123456',
     })
 

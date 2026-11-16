@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import axios from 'axios'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import type { ChangeEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -15,7 +15,14 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/features/auth/auth-context'
+import {
+  formatCpf,
+  formatPhone,
+  handleMaskedInputChange,
+  normalizePersonalData,
+} from '@/features/auth/personal-data'
 import { registerSchema, type RegisterFormData } from '@/features/auth/schemas'
+import { getApiErrorMessage } from '@/services/api'
 
 interface FieldConfig {
   name: keyof RegisterFormData
@@ -71,19 +78,18 @@ export function RegisterPage() {
     try {
       await signUp({
         name: data.name,
-        cpf: data.cpf,
+        cpf: normalizePersonalData(data.cpf),
         email: data.email,
-        phone: data.phone,
+        phone: normalizePersonalData(data.phone),
         password: data.password,
       })
       toast.success('Conta criada com sucesso!')
       navigate('/', { replace: true })
     } catch (error) {
-      const message =
-        axios.isAxiosError<{ message?: string }>(error) &&
-        error.response?.data?.message
-          ? error.response.data.message
-          : 'Não foi possível criar a conta'
+      const message = getApiErrorMessage(
+        error,
+        'Não foi possível criar a conta',
+      )
 
       setSubmitError(message)
       toast.error('Não foi possível criar a conta')
@@ -96,7 +102,7 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12 text-foreground">
+    <main className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12 text-foreground">
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
@@ -114,24 +120,45 @@ export function RegisterPage() {
             onSubmit={handleSubmit(onSubmit)}
             noValidate
           >
-            {fields.map((field) => (
-              <div key={field.name} className="space-y-2">
-                <label htmlFor={field.name} className="text-sm font-medium">
-                  {field.label}
-                </label>
-                <Input
-                  id={field.name}
-                  type={field.type}
-                  autoComplete={field.autoComplete}
-                  {...register(field.name)}
-                />
-                {errors[field.name] && (
-                  <p className="text-sm text-destructive">
-                    {errors[field.name]?.message}
-                  </p>
-                )}
-              </div>
-            ))}
+            {fields.map((field) => {
+              const registration = register(field.name)
+              const onChange =
+                field.name === 'cpf'
+                  ? (event: ChangeEvent<HTMLInputElement>) =>
+                      handleMaskedInputChange(
+                        event,
+                        registration.onChange,
+                        formatCpf,
+                      )
+                  : field.name === 'phone'
+                    ? (event: ChangeEvent<HTMLInputElement>) =>
+                        handleMaskedInputChange(
+                          event,
+                          registration.onChange,
+                          formatPhone,
+                        )
+                    : registration.onChange
+
+              return (
+                <div key={field.name} className="space-y-2">
+                  <label htmlFor={field.name} className="text-sm font-medium">
+                    {field.label}
+                  </label>
+                  <Input
+                    id={field.name}
+                    type={field.type}
+                    autoComplete={field.autoComplete}
+                    {...registration}
+                    onChange={onChange}
+                  />
+                  {errors[field.name] && (
+                    <p className="text-sm text-destructive">
+                      {errors[field.name]?.message}
+                    </p>
+                  )}
+                </div>
+              )
+            })}
 
             {submitError && (
               <p role="alert" className="text-sm text-destructive">
@@ -165,6 +192,6 @@ export function RegisterPage() {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </main>
   )
 }

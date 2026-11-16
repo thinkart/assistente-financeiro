@@ -51,7 +51,7 @@ describe('FiltersBar (AC-006)', () => {
       target: { value: 'income' },
     })
     fireEvent.change(screen.getByLabelText('Categoria'), {
-      target: { value: 'alimentacao' },
+      target: { value: 'salario' },
     })
     fireEvent.change(screen.getByLabelText('De'), {
       target: { value: '2026-10-01' },
@@ -64,7 +64,7 @@ describe('FiltersBar (AC-006)', () => {
     expect(onApply).toHaveBeenCalledWith({
       search: 'merc',
       type: 'income',
-      categoryId: 'alimentacao',
+      categoryId: 'salario',
       startDate: '2026-10-01',
       endDate: '2026-10-31',
     })
@@ -82,6 +82,23 @@ describe('FiltersBar (AC-006)', () => {
       startDate: undefined,
       endDate: undefined,
     })
+  })
+
+  it('filtra as categorias pelo tipo e limpa a seleção incompatível', () => {
+    renderBar()
+
+    fireEvent.change(screen.getByLabelText('Categoria'), {
+      target: { value: 'alimentacao' },
+    })
+    fireEvent.change(screen.getByLabelText('Tipo'), {
+      target: { value: 'income' },
+    })
+
+    expect(screen.getByLabelText('Categoria')).toHaveValue('')
+    expect(screen.getByRole('option', { name: 'Salário' })).toBeInTheDocument()
+    expect(
+      screen.queryByRole('option', { name: 'Alimentação' }),
+    ).not.toBeInTheDocument()
   })
 
   it('só aplica ao submeter, não a cada digitação', () => {

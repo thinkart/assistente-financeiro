@@ -18,6 +18,22 @@ export function FiltersBar({ categories, onApply }: FiltersBarProps) {
   const [categoryId, setCategoryId] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+  const availableCategories = type
+    ? categories.filter((category) => category.type === type)
+    : categories
+
+  const handleTypeChange = (nextType: '' | TransactionType) => {
+    setType(nextType)
+    setCategoryId((currentCategoryId) =>
+      nextType &&
+      !categories.some(
+        (category) =>
+          category.id === currentCategoryId && category.type === nextType,
+      )
+        ? ''
+        : currentCategoryId,
+    )
+  }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -59,7 +75,7 @@ export function FiltersBar({ categories, onApply }: FiltersBarProps) {
           className={selectClassName}
           value={type}
           onChange={(event) =>
-            setType(event.target.value as '' | TransactionType)
+            handleTypeChange(event.target.value as '' | TransactionType)
           }
         >
           <option value="">Todos</option>
@@ -82,7 +98,7 @@ export function FiltersBar({ categories, onApply }: FiltersBarProps) {
           onChange={(event) => setCategoryId(event.target.value)}
         >
           <option value="">Todas</option>
-          {categories.map((category) => (
+          {availableCategories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
             </option>

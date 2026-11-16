@@ -5,9 +5,11 @@ import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
+import { MOCK_ACCESS_TOKEN } from '@/mocks/handlers/auth'
 import { resetCategoryStore } from '@/mocks/handlers/categories'
 import { resetTransactionStore } from '@/mocks/handlers/transactions'
 import { server } from '@/mocks/server'
+import { setStoredToken } from '@/services/token'
 import { DashboardPage } from './DashboardPage'
 
 const createWrapper = () => {
@@ -28,6 +30,7 @@ const renderPage = () => render(<DashboardPage />, { wrapper: createWrapper() })
 
 describe('DashboardPage (AC-006, AC-007)', () => {
   beforeEach(() => {
+    setStoredToken(MOCK_ACCESS_TOKEN)
     resetTransactionStore()
     resetCategoryStore()
   })

@@ -17,7 +17,11 @@ const renderLayout = (initialEntry = '/') => {
           <Routes>
             <Route element={<RequireAuth />}>
               <Route element={<AppLayout />}>
-                <Route path="/" element={<div>Conteúdo do dashboard</div>} />
+                <Route path="/" element={<div>Conteúdo inicial</div>} />
+                <Route
+                  path="/dashboard"
+                  element={<div>Conteúdo do dashboard</div>}
+                />
                 <Route
                   path="/transacoes"
                   element={<div>Conteúdo de transações</div>}
@@ -51,6 +55,7 @@ describe('AppLayout (AC-009)', () => {
     expect(screen.getByRole('button', { name: /sair/i })).toBeInTheDocument()
 
     for (const label of [
+      'Início',
       'Dashboard',
       'Transações',
       'Categorias',
@@ -63,7 +68,7 @@ describe('AppLayout (AC-009)', () => {
   it('renderiza o conteúdo da rota filha no main', async () => {
     renderLayout()
 
-    expect(await screen.findByText('Conteúdo do dashboard')).toBeInTheDocument()
+    expect(await screen.findByText('Conteúdo inicial')).toBeInTheDocument()
   })
 
   it('Sair limpa a sessão e volta para /login', async () => {
@@ -97,12 +102,13 @@ describe('AppLayout — menu mobile (AC-003)', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'true')
   })
 
-  it('oferece os quatro destinos de navegação', async () => {
+  it('oferece os seis destinos na ordem definida', async () => {
     renderLayout()
     await screen.findByText('Demo')
     await openMobileMenu()
 
     for (const label of [
+      'Início',
       'Dashboard',
       'Transações',
       'Categorias',
@@ -110,6 +116,17 @@ describe('AppLayout — menu mobile (AC-003)', () => {
     ]) {
       expect(screen.getByRole('menuitem', { name: label })).toBeInTheDocument()
     }
+
+    expect(
+      screen.getAllByRole('menuitem').map((item) => item.textContent),
+    ).toEqual([
+      'Início',
+      'Dashboard',
+      'Transações',
+      'Categorias',
+      'Relatórios',
+      'Perfil',
+    ])
   })
 
   it('destaca a rota ativa no menu', async () => {
@@ -122,6 +139,9 @@ describe('AppLayout — menu mobile (AC-003)', () => {
     ).toHaveAttribute('aria-current', 'page')
     expect(
       screen.getByRole('menuitem', { name: 'Dashboard' }),
+    ).not.toHaveAttribute('aria-current')
+    expect(
+      screen.getByRole('menuitem', { name: 'Início' }),
     ).not.toHaveAttribute('aria-current')
   })
 

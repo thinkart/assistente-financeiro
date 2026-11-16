@@ -11,9 +11,11 @@ import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
 import { AppToaster } from '@/components/AppToaster'
+import { MOCK_ACCESS_TOKEN } from '@/mocks/handlers/auth'
 import { resetCategoryStore } from '@/mocks/handlers/categories'
 import { resetTransactionStore } from '@/mocks/handlers/transactions'
 import { server } from '@/mocks/server'
+import { setStoredToken } from '@/services/token'
 import { TransactionsPage } from './TransactionsPage'
 
 const createWrapper = () => {
@@ -64,6 +66,7 @@ const fillValidForm = (description: string) => {
 
 describe('TransactionsPage (AC-004, AC-007, AC-009)', () => {
   beforeEach(() => {
+    setStoredToken(MOCK_ACCESS_TOKEN)
     resetCategoryStore()
     resetTransactionStore()
   })

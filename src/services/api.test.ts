@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { MOCK_ACCESS_TOKEN } from '@/mocks/handlers/auth'
 import { API_URL, UNAUTHORIZED_EVENT, api } from './api'
 import { clearStoredToken, getStoredToken, setStoredToken } from './token'
 
@@ -9,6 +10,7 @@ describe('instância Axios (AC-001)', () => {
   })
 
   it('conversa com a API mockada via axios', async () => {
+    setStoredToken(MOCK_ACCESS_TOKEN)
     const response = await api.get<{ data: { id: string }[] }>('/categories')
 
     expect(response.status).toBe(200)

@@ -4,9 +4,11 @@ import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
+import { MOCK_ACCESS_TOKEN } from '@/mocks/handlers/auth'
 import { resetCategoryStore } from '@/mocks/handlers/categories'
 import { resetTransactionStore } from '@/mocks/handlers/transactions'
 import { runAxe } from '@/test/a11y'
+import { setStoredToken } from '@/services/token'
 import { ReportsPage } from './ReportsPage'
 
 const createWrapper = () => {
@@ -27,6 +29,7 @@ const renderPage = () => render(<ReportsPage />, { wrapper: createWrapper() })
 
 describe('acessibilidade da ReportsPage (AC-002)', () => {
   beforeEach(() => {
+    setStoredToken(MOCK_ACCESS_TOKEN)
     resetTransactionStore()
     resetCategoryStore()
   })

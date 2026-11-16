@@ -1,8 +1,6 @@
 import { z } from 'zod'
 import type { PaymentMethod, TransactionType } from '@/types'
 
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
-
 export const transactionTypeOptions: {
   value: TransactionType
   label: string
@@ -34,14 +32,14 @@ export const transactionSchema = z.object({
     }, 'Informe um valor maior que zero'),
   type: z.enum(['income', 'expense'], { message: 'Selecione o tipo' }),
   categoryId: z.string().min(1, 'Selecione a categoria'),
-  paymentMethod: z.enum(['pix', 'credito', 'debito', 'dinheiro', 'boleto'], {
-    message: 'Selecione o método de pagamento',
-  }),
+  paymentMethod: z
+    .enum(['pix', 'credito', 'debito', 'dinheiro', 'boleto'], {
+      message: 'Selecione o método de pagamento',
+    }),
   date: z
     .string()
     .min(1, 'Informe a data')
-    .refine((value) => ISO_DATE.test(value), 'Informe uma data válida'),
-  repetition: z.literal('none', { message: 'Repetição ainda não suportada' }),
+    .refine((value) => /^\d{4}-\d{2}-\d{2}$/.test(value), 'Informe uma data válida'),
 })
 
 export type TransactionFormData = z.infer<typeof transactionSchema>

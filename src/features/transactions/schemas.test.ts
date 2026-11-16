@@ -22,7 +22,6 @@ const validForm = {
   categoryId: 'alimentacao',
   paymentMethod: 'debito',
   date: '2026-10-01',
-  repetition: 'none',
 }
 
 describe('schema do formulário de transação (AC-008)', () => {
@@ -89,14 +88,6 @@ describe('schema do formulário de transação (AC-008)', () => {
         transactionSchema.safeParse({ ...validForm, date: '15/09/2026' }),
       ),
     ).toContain('Informe uma data válida')
-  })
-
-  it('aceita apenas a repetição "Não repetir" por enquanto', () => {
-    expect(
-      messagesOf(
-        transactionSchema.safeParse({ ...validForm, repetition: 'monthly' }),
-      ),
-    ).toContain('Repetição ainda não suportada')
   })
 
   it('exporta as opções de tipo e método com rótulos em pt-BR', () => {

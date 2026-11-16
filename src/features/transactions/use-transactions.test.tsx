@@ -3,8 +3,10 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { transactions as seedTransactions } from '@/mocks/data'
+import { MOCK_ACCESS_TOKEN } from '@/mocks/handlers/auth'
 import { resetCategoryStore } from '@/mocks/handlers/categories'
 import { resetTransactionStore } from '@/mocks/handlers/transactions'
+import { setStoredToken } from '@/services/token'
 import type { TransactionInput } from '@/types'
 import {
   useCreateTransaction,
@@ -35,6 +37,7 @@ const newTransaction: TransactionInput = {
 
 describe('hooks de transações (AC-003)', () => {
   beforeEach(() => {
+    setStoredToken(MOCK_ACCESS_TOKEN)
     resetCategoryStore()
     resetTransactionStore()
   })
@@ -130,6 +133,7 @@ describe('hooks de transações (AC-003)', () => {
 
 describe('invalidação de relatórios (AC-007)', () => {
   beforeEach(() => {
+    setStoredToken(MOCK_ACCESS_TOKEN)
     resetCategoryStore()
     resetTransactionStore()
   })

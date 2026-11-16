@@ -5,9 +5,11 @@ import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
+import { MOCK_ACCESS_TOKEN } from '@/mocks/handlers/auth'
 import { resetCategoryStore } from '@/mocks/handlers/categories'
 import { resetTransactionStore } from '@/mocks/handlers/transactions'
 import { server } from '@/mocks/server'
+import { setStoredToken } from '@/services/token'
 import { ReportsPage } from './ReportsPage'
 
 const createWrapper = () => {
@@ -32,6 +34,7 @@ const applyFilters = () => {
 
 describe('ReportsPage (AC-001, AC-007)', () => {
   beforeEach(() => {
+    setStoredToken(MOCK_ACCESS_TOKEN)
     resetTransactionStore()
     resetCategoryStore()
   })
@@ -92,7 +95,10 @@ describe('ReportsPage (AC-001, AC-007)', () => {
 
   it('mostra o estado de erro e permite tentar novamente', async () => {
     server.use(
-      http.get('*/transactions', () =>
+      http.get('*/reports/summary', () =>
+        HttpResponse.json({ message: 'erro' }, { status: 500 }),
+      ),
+      http.get('*/reports/by-category', () =>
         HttpResponse.json({ message: 'erro' }, { status: 500 }),
       ),
     )

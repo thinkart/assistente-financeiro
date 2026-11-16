@@ -112,4 +112,21 @@ describe('CategoryForm (AC-007)', () => {
     )
     expect(onOpenChange).not.toHaveBeenCalledWith(false)
   })
+
+  it('exibe a mensagem de erro retornada pela API', async () => {
+    const error = Object.assign(new Error('falhou'), {
+      isAxiosError: true,
+      response: { data: { detail: 'Categoria possui transações vinculadas' } },
+    })
+    const onSubmit = vi.fn().mockRejectedValue(error)
+    renderForm({ onSubmit })
+
+    fill('Nome', 'Pets')
+    fill('Tipo', 'expense')
+    clickSave()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Categoria possui transações vinculadas',
+    )
+  })
 })

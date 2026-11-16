@@ -11,9 +11,11 @@ import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
 import { AppToaster } from '@/components/AppToaster'
+import { MOCK_ACCESS_TOKEN } from '@/mocks/handlers/auth'
 import { resetCategoryStore } from '@/mocks/handlers/categories'
 import { resetTransactionStore } from '@/mocks/handlers/transactions'
 import { server } from '@/mocks/server'
+import { setStoredToken } from '@/services/token'
 import { CategoriesPage } from './CategoriesPage'
 
 const createWrapper = () => {
@@ -61,6 +63,7 @@ const createCategory = async (name: string) => {
 
 describe('CategoriesPage (AC-004, AC-006, AC-008)', () => {
   beforeEach(() => {
+    setStoredToken(MOCK_ACCESS_TOKEN)
     resetCategoryStore()
     resetTransactionStore()
   })

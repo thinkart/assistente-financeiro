@@ -19,7 +19,7 @@ const renderLogin = (initialEntry: InitialEntry = '/login') =>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/cadastro" element={<div>Página de cadastro</div>} />
             <Route path="/transacoes" element={<div>Transações</div>} />
-            <Route path="/" element={<div>Início</div>} />
+            <Route path="/" element={<div>Assistente Inteligente</div>} />
           </Routes>
         </MemoryRouter>
       </AuthProvider>
@@ -108,6 +108,8 @@ describe('LoginPage (AC-006)', () => {
     fillCredentials('demo@financas.dev', '123456')
     submit()
 
-    expect(await screen.findByText('Início')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Assistente Inteligente'),
+    ).toBeInTheDocument()
   })
 })
