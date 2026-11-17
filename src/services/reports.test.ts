@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import { http, HttpResponse } from 'msw'
 import { createTransaction, fetchTransactions } from './transactions'
 import { MOCK_ACCESS_TOKEN, resetAuthStore } from '@/mocks/handlers/auth'
 import { transactions as seedTransactions } from '@/mocks/data'
 import { resetCategoryStore } from '@/mocks/handlers/categories'
 import { resetTransactionStore } from '@/mocks/handlers/transactions'
+import { server } from '@/mocks/server'
 import { setStoredToken } from './token'
 import {
   downloadTransactionsCsv,
@@ -114,6 +116,32 @@ describe('serviço de relatórios por categoria (AC-002)', () => {
       report.find((item) => item.categoryId === 'salario')?.total,
     ).toBeCloseTo(expectedSalario, 2)
     expect(report.every((item) => item.categoryId !== 'alimentacao')).toBe(true)
+  })
+
+  it('mapeia o payload snake_case do backend para o contrato do front', async () => {
+    server.use(
+      http.get('*/reports/by-category', () =>
+        HttpResponse.json({
+          data: [
+            {
+              category_id: 'alimentacao',
+              category_name: 'Alimentação',
+              total: 820.3,
+              percentage: 41.6,
+            },
+          ],
+        }),
+      ),
+    )
+
+    const [item] = await fetchCategoryReport({ type: 'expense' })
+
+    expect(item).toEqual({
+      categoryId: 'alimentacao',
+      categoryName: 'Alimentação',
+      total: 820.3,
+      percentage: 41.6,
+    })
   })
 })
 

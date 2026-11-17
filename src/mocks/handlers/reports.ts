@@ -1,12 +1,19 @@
 import { http, HttpResponse } from 'msw'
 import { jsPDF } from 'jspdf'
-import type { CategoryReport, SummaryReport, TransactionType } from '@/types'
+import type { SummaryReport, TransactionType } from '@/types'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { applyMockDelay } from '../delay'
 import { getAuthenticatedUserId } from './auth'
 import { getCategoryById } from './categories'
 import { getFilteredTransactions, getTransactions } from './transactions'
 import { errorResponse } from './responses'
+
+interface ApiCategoryReport {
+  category_id: string
+  category_name: string
+  total: number
+  percentage: number
+}
 
 const round2 = (value: number) => Math.round(value * 100) / 100
 
@@ -162,13 +169,13 @@ export const reportHandlers = [
 
     const roundedTotal = round2(total)
 
-    const report: CategoryReport[] = [...totalByCategory.entries()]
+    const report: ApiCategoryReport[] = [...totalByCategory.entries()]
       .map(([categoryId, categoryTotal]) => {
         const roundedCategoryTotal = round2(categoryTotal)
 
         return {
-          categoryId,
-          categoryName:
+          category_id: categoryId,
+          category_name:
             getCategoryById(categoryId, userId)?.name ?? 'Sem categoria',
           total: roundedCategoryTotal,
           percentage:

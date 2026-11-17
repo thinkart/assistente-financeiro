@@ -21,6 +21,20 @@ export interface CategoryReportFilters {
   type?: TransactionType
 }
 
+interface ApiCategoryReport {
+  category_id: string
+  category_name: string
+  total: number
+  percentage: number
+}
+
+const toCategoryReport = (report: ApiCategoryReport): CategoryReport => ({
+  categoryId: report.category_id,
+  categoryName: report.category_name,
+  total: Number(report.total),
+  percentage: Number(report.percentage),
+})
+
 export interface TransactionsPdfFilters {
   startDate?: string
   endDate?: string
@@ -63,7 +77,7 @@ export const fetchSummary = async (
 export const fetchCategoryReport = async (
   filters?: CategoryReportFilters,
 ): Promise<CategoryReport[]> => {
-  const { data } = await api.get<ApiEnvelope<CategoryReport[]>>(
+  const { data } = await api.get<ApiEnvelope<ApiCategoryReport[]>>(
     '/reports/by-category',
     {
       params: {
@@ -74,7 +88,7 @@ export const fetchCategoryReport = async (
     },
   )
 
-  return Array.isArray(data.data) ? data.data : []
+  return Array.isArray(data.data) ? data.data.map(toCategoryReport) : []
 }
 
 export const downloadTransactionsPdf = async (
