@@ -8,6 +8,7 @@ import {
 } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import type { ReactNode } from 'react'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
 import { AppToaster } from '@/components/AppToaster'
@@ -27,7 +28,15 @@ const createWrapper = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AppToaster />
-        {children}
+        <MemoryRouter initialEntries={['/transacoes']}>
+          <Routes>
+            <Route path="/transacoes" element={children} />
+            <Route
+              path="/categorias"
+              element={<div>Página de categorias</div>}
+            />
+          </Routes>
+        </MemoryRouter>
       </ThemeProvider>
     </QueryClientProvider>
   )
@@ -130,6 +139,39 @@ describe('TransactionsPage (AC-004, AC-007, AC-009)', () => {
       await within(screen.getByRole('table')).findByText('Compra nova'),
     ).toBeInTheDocument()
     expect(await screen.findByText('Página 1 de 4')).toBeInTheDocument()
+  })
+
+  it('avisa que é preciso cadastrar uma categoria e leva para /categorias', async () => {
+    server.use(http.get('*/categories', () => HttpResponse.json({ data: [] })))
+
+    renderPage()
+
+    const newTransactionButton = screen.getByRole('button', {
+      name: /nova transação/i,
+    })
+    await waitFor(() => {
+      expect(newTransactionButton).toBeEnabled()
+    })
+
+    fireEvent.click(newTransactionButton)
+
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Nenhuma categoria cadastrada',
+    })
+    expect(
+      within(dialog).getByText(
+        'Cadastre pelo menos uma categoria antes de cadastrar uma transação',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('dialog', { name: 'Nova transação' }),
+    ).not.toBeInTheDocument()
+
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: 'Ir para categorias' }),
+    )
+
+    expect(await screen.findByText('Página de categorias')).toBeInTheDocument()
   })
 
   it('edita uma transação existente', async () => {

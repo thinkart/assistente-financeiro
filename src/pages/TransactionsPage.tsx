@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useCategories } from '@/features/categories/use-categories'
 import { DeleteTransactionDialog } from '@/features/transactions/DeleteTransactionDialog'
 import { FiltersBar } from '@/features/transactions/FiltersBar'
+import { NoCategoriesDialog } from '@/features/transactions/NoCategoriesDialog'
 import { TransactionForm } from '@/features/transactions/TransactionForm'
 import { TransactionsTable } from '@/features/transactions/TransactionsTable'
 import {
@@ -17,13 +19,16 @@ import type { Transaction, TransactionFilters, TransactionInput } from '@/types'
 const PAGE_SIZE = 10
 
 export function TransactionsPage() {
+  const navigate = useNavigate()
   const [filters, setFilters] = useState<TransactionFilters>({})
   const [page, setPage] = useState(1)
   const [formOpen, setFormOpen] = useState(false)
+  const [noCategoriesOpen, setNoCategoriesOpen] = useState(false)
   const [editing, setEditing] = useState<Transaction | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null)
 
-  const { data: categories = [] } = useCategories()
+  const { data: categories = [], isPending: categoriesPending } =
+    useCategories()
 
   const {
     data: transactions = [],
@@ -50,6 +55,11 @@ export function TransactionsPage() {
   }
 
   const handleOpenCreate = () => {
+    if (categories.length === 0) {
+      setNoCategoriesOpen(true)
+      return
+    }
+
     setEditing(null)
     setFormOpen(true)
   }
@@ -107,7 +117,11 @@ export function TransactionsPage() {
         <h2 className="text-xl font-semibold tracking-tight">
           Transações cadastradas
         </h2>
-        <Button type="button" onClick={handleOpenCreate}>
+        <Button
+          type="button"
+          onClick={handleOpenCreate}
+          disabled={categoriesPending}
+        >
           + Nova transação
         </Button>
       </div>
@@ -185,6 +199,15 @@ export function TransactionsPage() {
         onOpenChange={handleFormOpenChange}
         onSubmit={persist}
         onSaveAndAddAnother={persistAnother}
+      />
+
+      <NoCategoriesDialog
+        open={noCategoriesOpen}
+        onOpenChange={setNoCategoriesOpen}
+        onGoToCategories={() => {
+          setNoCategoriesOpen(false)
+          navigate('/categorias')
+        }}
       />
 
       <DeleteTransactionDialog
