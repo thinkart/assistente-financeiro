@@ -35,7 +35,8 @@ export function LoginPage() {
     defaultValues: { email: '', password: '' },
   })
 
-  const from = (location.state as LocationState | null)?.from?.pathname ?? '/'
+  const from =
+    (location.state as LocationState | null)?.from?.pathname ?? '/dashboard'
 
   const onSubmit = async (data: LoginFormData) => {
     setSubmitError(null)

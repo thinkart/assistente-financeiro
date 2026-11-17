@@ -48,14 +48,17 @@ describe('rotas do App (AC-001)', () => {
     ).toBeInTheDocument()
   })
 
-  it('mostra a área privada quando há sessão válida', async () => {
+  it('redireciona / para o dashboard quando há sessão válida', async () => {
     setStoredToken('mock-access-token')
 
     renderApp('/')
 
     expect(
-      await screen.findByRole('heading', { name: 'Olá, Demo' }),
+      await screen.findByText('Resumo financeiro do mês'),
     ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: 'Olá, Demo' }),
+    ).not.toBeInTheDocument()
   })
 
   it('mantém o dashboard existente disponível em /dashboard', async () => {

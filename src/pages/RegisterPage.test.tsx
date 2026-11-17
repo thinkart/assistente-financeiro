@@ -16,7 +16,8 @@ const renderRegister = () =>
           <Routes>
             <Route path="/cadastro" element={<RegisterPage />} />
             <Route path="/login" element={<div>Página de login</div>} />
-            <Route path="/" element={<div>Assistente Inteligente</div>} />
+            <Route path="/dashboard" element={<div>Dashboard</div>} />
+            <Route path="/" element={<div>Início oculto</div>} />
           </Routes>
         </MemoryRouter>
       </AuthProvider>
@@ -111,14 +112,12 @@ describe('RegisterPage (AC-007)', () => {
     expect(screen.getByText('As senhas não conferem')).toBeInTheDocument()
   })
 
-  it('cria a conta, autentica e redireciona para /', async () => {
+  it('cria a conta, autentica e redireciona para /dashboard', async () => {
     renderRegister()
     fillValidForm(`cad-${Date.now()}@financas.dev`)
     submit()
 
-    expect(
-      await screen.findByText('Assistente Inteligente'),
-    ).toBeInTheDocument()
+    expect(await screen.findByText('Dashboard')).toBeInTheDocument()
     expect(
       await screen.findByText('Conta criada com sucesso!'),
     ).toBeInTheDocument()

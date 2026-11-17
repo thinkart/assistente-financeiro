@@ -4,7 +4,6 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '@/components/AppLayout'
 import { useAuth } from '@/features/auth/auth-context'
 import { RequireAuth } from '@/features/auth/RequireAuth'
-import { AssistantPage } from '@/pages/AssistantPage'
 import { CategoriesPage } from '@/pages/CategoriesPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { LoginPage } from '@/pages/LoginPage'
@@ -32,7 +31,7 @@ function App() {
 
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<AssistantPage />} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/transacoes" element={<TransactionsPage />} />
           <Route path="/categorias" element={<CategoriesPage />} />
@@ -42,7 +41,7 @@ function App() {
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   )
 }

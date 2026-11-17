@@ -51,7 +51,8 @@ Comandos: `npm test`, `npm run lint`, `npm run build`, `npm run preview` e `npm 
 | --- | --- |
 | `/login` | Login |
 | `/cadastro` | Cadastro |
-| `/` | Dashboard privado |
+| `/` | Redireciona para `/dashboard` |
+| `/dashboard` | Dashboard privado |
 | `/transacoes` | Transações privadas |
 | `/categorias` | Categorias privadas |
 | `/relatorios` | Relatórios privados |

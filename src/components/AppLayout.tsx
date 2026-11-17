@@ -12,7 +12,6 @@ import { useAuth } from '@/features/auth/auth-context'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { to: '/', label: 'Início', end: true },
   { to: '/dashboard', label: 'Dashboard', end: true },
   { to: '/transacoes', label: 'Transações', end: false },
   { to: '/categorias', label: 'Categorias', end: false },

@@ -7,7 +7,7 @@ import { RequireAuth } from '@/features/auth/RequireAuth'
 import { getStoredToken, setStoredToken } from '@/services/token'
 import { AppLayout } from './AppLayout'
 
-const renderLayout = (initialEntry = '/') => {
+const renderLayout = (initialEntry = '/dashboard') => {
   setStoredToken('mock-access-token')
 
   return render(
@@ -17,7 +17,6 @@ const renderLayout = (initialEntry = '/') => {
           <Routes>
             <Route element={<RequireAuth />}>
               <Route element={<AppLayout />}>
-                <Route path="/" element={<div>Conteúdo inicial</div>} />
                 <Route
                   path="/dashboard"
                   element={<div>Conteúdo do dashboard</div>}
@@ -55,7 +54,6 @@ describe('AppLayout (AC-009)', () => {
     expect(screen.getByRole('button', { name: /sair/i })).toBeInTheDocument()
 
     for (const label of [
-      'Início',
       'Dashboard',
       'Transações',
       'Categorias',
@@ -68,7 +66,9 @@ describe('AppLayout (AC-009)', () => {
   it('renderiza o conteúdo da rota filha no main', async () => {
     renderLayout()
 
-    expect(await screen.findByText('Conteúdo inicial')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Conteúdo do dashboard'),
+    ).toBeInTheDocument()
   })
 
   it('Sair limpa a sessão e volta para /login', async () => {
@@ -102,13 +102,12 @@ describe('AppLayout — menu mobile (AC-003)', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'true')
   })
 
-  it('oferece os seis destinos na ordem definida', async () => {
+  it('oferece os cinco destinos na ordem definida', async () => {
     renderLayout()
     await screen.findByText('Demo')
     await openMobileMenu()
 
     for (const label of [
-      'Início',
       'Dashboard',
       'Transações',
       'Categorias',
@@ -120,7 +119,6 @@ describe('AppLayout — menu mobile (AC-003)', () => {
     expect(
       screen.getAllByRole('menuitem').map((item) => item.textContent),
     ).toEqual([
-      'Início',
       'Dashboard',
       'Transações',
       'Categorias',
@@ -139,9 +137,6 @@ describe('AppLayout — menu mobile (AC-003)', () => {
     ).toHaveAttribute('aria-current', 'page')
     expect(
       screen.getByRole('menuitem', { name: 'Dashboard' }),
-    ).not.toHaveAttribute('aria-current')
-    expect(
-      screen.getByRole('menuitem', { name: 'Início' }),
     ).not.toHaveAttribute('aria-current')
   })
 

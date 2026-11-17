@@ -84,7 +84,7 @@ export function RegisterPage() {
         password: data.password,
       })
       toast.success('Conta criada com sucesso!')
-      navigate('/', { replace: true })
+      navigate('/dashboard', { replace: true })
     } catch (error) {
       const message = getApiErrorMessage(
         error,
