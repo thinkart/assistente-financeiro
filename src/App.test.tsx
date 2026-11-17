@@ -129,7 +129,7 @@ describe('rotas do App (AC-001)', () => {
     expect(screen.queryByText('Exportar dados')).not.toBeInTheDocument()
   })
 
-  it('mantém o perfil e as exportações acessíveis em /perfil', async () => {
+  it('mantém o perfil e a exportação em CSV acessíveis em /perfil', async () => {
     setStoredToken('mock-access-token')
 
     renderApp('/perfil')
@@ -138,8 +138,8 @@ describe('rotas do App (AC-001)', () => {
       await screen.findByRole('heading', { name: 'Perfil' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: 'Baixar PDF' }),
-    ).toBeInTheDocument()
+      screen.queryByRole('button', { name: 'Baixar PDF' }),
+    ).not.toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: 'Baixar CSV' }),
     ).toBeInTheDocument()

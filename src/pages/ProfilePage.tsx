@@ -30,6 +30,7 @@ import {
 } from '@/services/reports'
 
 const NOT_INFORMED = 'Não informado'
+const SHOW_PDF_EXPORT = false
 
 export function ProfilePage() {
   const { user, isLoading, updateUser } = useAuth()
@@ -358,20 +359,22 @@ export function ProfilePage() {
           <CardHeader>
             <CardTitle className="text-lg">Exportar dados</CardTitle>
             <CardDescription>
-              Baixe um relatório em PDF com o resumo das suas transações.
+              Baixe um relatório em CSV com o resumo das suas transações.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleDownloadPdf}
-                disabled={isExportingPdf}
-              >
-                <Download />
-                {isExportingPdf ? 'Gerando PDF…' : 'Baixar PDF'}
-              </Button>
+              {SHOW_PDF_EXPORT && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleDownloadPdf}
+                  disabled={isExportingPdf}
+                >
+                  <Download />
+                  {isExportingPdf ? 'Gerando PDF…' : 'Baixar PDF'}
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="outline"
