@@ -3,7 +3,9 @@ import { renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { transactions as seedTransactions } from '@/mocks/data'
+import { MOCK_ACCESS_TOKEN } from '@/mocks/handlers/auth'
 import { resetTransactionStore } from '@/mocks/handlers/transactions'
+import { setStoredToken } from '@/services/token'
 import { useSummary } from './use-summary'
 
 const createWrapper = () => {
@@ -27,6 +29,7 @@ const toIso = (date: Date) => {
 
 describe('hook useSummary (AC-002)', () => {
   beforeEach(() => {
+    setStoredToken(MOCK_ACCESS_TOKEN)
     resetTransactionStore()
   })
 

@@ -1,12 +1,13 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import App from '@/App'
 import { QueryProvider } from '@/app/providers/QueryProvider'
 import { ThemeProvider } from '@/app/providers/ThemeProvider'
 import { AuthProvider } from '@/features/auth/AuthProvider'
+import { meRequest } from '@/features/auth/service'
 import { setStoredToken } from '@/services/token'
 
 const renderApp = (initialEntry = '/') =>
@@ -47,13 +48,42 @@ describe('rotas do App (AC-001)', () => {
     ).toBeInTheDocument()
   })
 
-  it('mostra a área privada quando há sessão válida', async () => {
+  it('redireciona / para o dashboard quando há sessão válida', async () => {
     setStoredToken('mock-access-token')
 
     renderApp('/')
 
     expect(
       await screen.findByText('Resumo financeiro do mês'),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: 'Olá, Demo' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('mantém o dashboard existente disponível em /dashboard', async () => {
+    setStoredToken('mock-access-token')
+
+    renderApp('/dashboard')
+
+    expect(
+      await screen.findByText('Resumo financeiro do mês'),
+    ).toBeInTheDocument()
+  })
+
+  it('retorna à rota privada originalmente solicitada após login', async () => {
+    renderApp('/transacoes')
+
+    fireEvent.change(await screen.findByLabelText('E-mail'), {
+      target: { value: 'demo@financas.dev' },
+    })
+    fireEvent.change(screen.getByLabelText('Senha'), {
+      target: { value: '123456' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }))
+
+    expect(
+      await screen.findByRole('heading', { name: 'Transações cadastradas' }),
     ).toBeInTheDocument()
   })
 
@@ -85,6 +115,60 @@ describe('rotas do App (AC-001)', () => {
     expect(
       await screen.findByRole('heading', { name: 'Relatórios' }),
     ).toBeInTheDocument()
+  })
+
+  it('renderiza a edição de conta em /perfil/editar', async () => {
+    setStoredToken('mock-access-token')
+
+    renderApp('/perfil/editar')
+
+    expect(
+      await screen.findByRole('heading', { name: 'Editar conta' }),
+    ).toBeInTheDocument()
+    expect(screen.getByLabelText('Nome completo')).toBeInTheDocument()
+    expect(screen.queryByText('Exportar dados')).not.toBeInTheDocument()
+  })
+
+  it('mantém o perfil e a exportação em CSV acessíveis em /perfil', async () => {
+    setStoredToken('mock-access-token')
+
+    renderApp('/perfil')
+
+    expect(
+      await screen.findByRole('heading', { name: 'Perfil' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Baixar PDF' }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Baixar CSV' }),
+    ).toBeInTheDocument()
+  })
+
+  it('mascara dados existentes e salva CPF/telefone normalizados no perfil', async () => {
+    setStoredToken('mock-access-token')
+
+    renderApp('/perfil/editar')
+
+    const cpf = await screen.findByLabelText('CPF')
+    const phone = screen.getByLabelText('Telefone')
+    expect(cpf).toHaveValue('529.982.247-25')
+    expect(phone).toHaveValue('(11) 99999-0000')
+
+    fireEvent.change(cpf, { target: { value: '11144477735' } })
+    fireEvent.change(phone, { target: { value: '1123456789' } })
+    expect(cpf).toHaveValue('111.444.777-35')
+    expect(phone).toHaveValue('(11) 2345-6789')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    expect(
+      await screen.findByRole('heading', { name: 'Perfil' }),
+    ).toBeInTheDocument()
+    await expect(meRequest()).resolves.toMatchObject({
+      cpf: '11144477735',
+      phone: '1123456789',
+    })
   })
 })
 

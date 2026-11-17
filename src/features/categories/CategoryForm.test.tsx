@@ -59,7 +59,9 @@ describe('CategoryForm (AC-007)', () => {
     clickSave()
 
     expect(
-      await screen.findByText('Informe o nome da categoria'),
+      await screen.findByText(
+        'Informe o nome da categoria (mínimo 3 caracteres)',
+      ),
     ).toBeInTheDocument()
     expect(screen.getByText('Selecione o tipo')).toBeInTheDocument()
   })
@@ -109,5 +111,22 @@ describe('CategoryForm (AC-007)', () => {
       'Não foi possível salvar a categoria',
     )
     expect(onOpenChange).not.toHaveBeenCalledWith(false)
+  })
+
+  it('exibe a mensagem de erro retornada pela API', async () => {
+    const error = Object.assign(new Error('falhou'), {
+      isAxiosError: true,
+      response: { data: { detail: 'Categoria possui transações vinculadas' } },
+    })
+    const onSubmit = vi.fn().mockRejectedValue(error)
+    renderForm({ onSubmit })
+
+    fill('Nome', 'Pets')
+    fill('Tipo', 'expense')
+    clickSave()
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Categoria possui transações vinculadas',
+    )
   })
 })

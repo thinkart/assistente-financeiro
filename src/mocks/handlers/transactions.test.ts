@@ -1,10 +1,21 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { Transaction } from '@/types'
+import type { PaymentMethod, Transaction, TransactionType } from '@/types'
+import { MOCK_ACCESS_TOKEN, resetAuthStore } from './auth'
 import { transactions as seedTransactions } from '../data'
 import { resetCategoryStore } from './categories'
 import { resetTransactionStore } from './transactions'
 
 const API_URL = 'http://127.0.0.1:5000'
+
+interface ApiTransaction {
+  id: string
+  description: string
+  amount: string
+  type: TransactionType
+  date: string
+  payment_method: PaymentMethod
+  category_id: string
+}
 
 const toIso = (date: Date) => {
   const year = date.getFullYear()
@@ -13,15 +24,26 @@ const toIso = (date: Date) => {
   return `${year}-${month}-${day}`
 }
 
-const fetchTransactions = async (query = '') => {
-  const response = await fetch(`${API_URL}/transactions${query}`)
-  return { response, body: (await response.json()) as Transaction[] }
+const fetchTransactions = async (query = '', token = MOCK_ACCESS_TOKEN) => {
+  const response = await fetch(`${API_URL}/transactions${query}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  const payload = (await response.json()) as { data: ApiTransaction[] }
+  return { response, body: payload.data }
 }
 
-const sendJson = (method: string, path: string, body: unknown) =>
+const sendJson = (
+  method: string,
+  path: string,
+  body: unknown,
+  token = MOCK_ACCESS_TOKEN,
+) =>
   fetch(`${API_URL}${path}`, {
     method,
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(body),
   })
 
@@ -35,13 +57,36 @@ const validPayload = {
   description: 'Compra de teste',
   amount: 99.9,
   type: 'expense' as const,
-  paymentMethod: 'pix' as const,
+  payment_method: 'pix' as const,
   date: '2026-09-15',
-  categoryId: 'lazer',
+  category_id: 'lazer',
+}
+
+const createMockUser = async (prefix: string, cpf: string) => {
+  const email = `${prefix}-${crypto.randomUUID()}@financas.dev`
+  await fetch(`${API_URL}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: `Usuário ${prefix}`,
+      cpf,
+      email,
+      phone: '11988887777',
+      password: '123456',
+    }),
+  })
+  const response = await fetch(`${API_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password: '123456' }),
+  })
+  const body = (await response.json()) as { access_token: string }
+  return body.access_token
 }
 
 describe('handlers de transações (AC-006)', () => {
   beforeEach(() => {
+    resetAuthStore()
     resetCategoryStore()
     resetTransactionStore()
   })
@@ -51,6 +96,7 @@ describe('handlers de transações (AC-006)', () => {
 
     expect(response.status).toBe(200)
     expect(body.length).toBe(seedTransactions.length)
+    expect(typeof body[0]?.amount).toBe('string')
   })
 
   it('filtra por tipo', async () => {
@@ -66,7 +112,9 @@ describe('handlers de transações (AC-006)', () => {
     const { body } = await fetchTransactions('?categoryId=alimentacao')
 
     expect(body.length).toBeGreaterThan(0)
-    expect(body.every((item) => item.categoryId === 'alimentacao')).toBe(true)
+    expect(
+      body.every((item) => item.category_id === 'alimentacao'),
+    ).toBe(true)
   })
 
   it('filtra por período (startDate e endDate)', async () => {
@@ -86,9 +134,11 @@ describe('handlers de transações (AC-006)', () => {
   it('filtra por faixa de valor (minAmount e maxAmount)', async () => {
     const { body } = await fetchTransactions('?minAmount=100&maxAmount=500')
 
-    expect(body.every((item) => item.amount >= 100 && item.amount <= 500)).toBe(
-      true,
-    )
+    expect(
+      body.every(
+        (item) => Number(item.amount) >= 100 && Number(item.amount) <= 500,
+      ),
+    ).toBe(true)
     expect(body.length).toBe(
       seedTransactions.filter(
         (item) => item.amount >= 100 && item.amount <= 500,
@@ -128,48 +178,53 @@ describe('handlers de transações (AC-006)', () => {
 
     expect(response.status).toBe(201)
 
-    const created = (await response.json()) as Transaction
-    expect(created.id).toBeTruthy()
-    expect(created.description).toBe('Compra de teste')
-    expect(created.paymentMethod).toBe('pix')
+    const payload = (await response.json()) as {
+      message: string
+      data: ApiTransaction
+    }
+    expect(payload.message).toBe('Transação cadastrada com sucesso')
+    expect(payload.data.id).toBeTruthy()
+    expect(payload.data.description).toBe('Compra de teste')
+    expect(payload.data.payment_method).toBe('pix')
+    expect(payload.data.amount).toBe('99.90')
 
     const { body } = await fetchTransactions()
-    expect(body.some((item) => item.id === created.id)).toBe(true)
+    expect(body.some((item) => item.id === payload.data.id)).toBe(true)
   })
 
-  it('rejeita transação com categoria desconhecida (400)', async () => {
+  it('rejeita transação com categoria desconhecida (404)', async () => {
     const response = await sendJson('POST', '/transactions', {
       ...validPayload,
-      categoryId: 'nao-existe',
+      category_id: 'nao-existe',
     })
 
-    expect(response.status).toBe(400)
+    expect(response.status).toBe(404)
   })
 
-  it('rejeita payload inválido (400)', async () => {
+  it('rejeita payload inválido (422)', async () => {
     const withoutDescription = await sendJson('POST', '/transactions', {
       ...validPayload,
       description: '',
     })
-    expect(withoutDescription.status).toBe(400)
+    expect(withoutDescription.status).toBe(422)
 
     const negativeAmount = await sendJson('POST', '/transactions', {
       ...validPayload,
       amount: -10,
     })
-    expect(negativeAmount.status).toBe(400)
+    expect(negativeAmount.status).toBe(422)
 
     const invalidDate = await sendJson('POST', '/transactions', {
       ...validPayload,
       date: '15/09/2026',
     })
-    expect(invalidDate.status).toBe(400)
+    expect(invalidDate.status).toBe(422)
 
     const invalidPaymentMethod = await sendJson('POST', '/transactions', {
       ...validPayload,
-      paymentMethod: 'cheque',
+      payment_method: 'cheque',
     })
-    expect(invalidPaymentMethod.status).toBe(400)
+    expect(invalidPaymentMethod.status).toBe(422)
   })
 
   it('atualiza uma transação existente com 200', async () => {
@@ -180,9 +235,13 @@ describe('handlers de transações (AC-006)', () => {
 
     expect(response.status).toBe(200)
 
-    const updated = (await response.json()) as Transaction
-    expect(updated.id).toBe('t1')
-    expect(updated.description).toBe('Atualizada')
+    const payload = (await response.json()) as {
+      message: string
+      data: ApiTransaction
+    }
+    expect(payload.message).toBe('Transação atualizada com sucesso')
+    expect(payload.data.id).toBe('t1')
+    expect(payload.data.description).toBe('Atualizada')
 
     const { body } = await fetchTransactions()
     expect(body.find((item) => item.id === 't1')?.description).toBe(
@@ -200,19 +259,125 @@ describe('handlers de transações (AC-006)', () => {
     expect(response.status).toBe(404)
   })
 
-  it('remove uma transação com 204 e depois retorna 404', async () => {
+  it('remove uma transação com 200 e depois retorna 404', async () => {
     const response = await fetch(`${API_URL}/transactions/t30`, {
       method: 'DELETE',
+      headers: { Authorization: `Bearer ${MOCK_ACCESS_TOKEN}` },
     })
 
-    expect(response.status).toBe(204)
+    expect(response.status).toBe(200)
 
-    const { body } = await fetchTransactions()
-    expect(body.some((item) => item.id === 't30')).toBe(false)
+    const body = (await response.json()) as { message: string }
+    expect(body.message).toBe('Transação deletada com sucesso')
+
+    const { body: transactions } = await fetchTransactions()
+    expect(transactions.some((item) => item.id === 't30')).toBe(false)
 
     const again = await fetch(`${API_URL}/transactions/t30`, {
       method: 'DELETE',
+      headers: { Authorization: `Bearer ${MOCK_ACCESS_TOKEN}` },
     })
     expect(again.status).toBe(404)
+  })
+
+  it('isola transações e categorias entre usuários e bloqueia alterações cruzadas', async () => {
+    const userAToken = await createMockUser('Ana', '11144477735')
+    const userBToken = await createMockUser('Bia', '93541134780')
+
+    const initialUserTransactions = await fetchTransactions('', userAToken)
+    expect(initialUserTransactions.body).toEqual([])
+
+    const createdTransactionResponse = await sendJson(
+      'POST',
+      '/transactions',
+      validPayload,
+      userAToken,
+    )
+    const createdTransaction = (await createdTransactionResponse.json()) as {
+      data: ApiTransaction
+    }
+
+    const userBTransactions = await fetchTransactions('', userBToken)
+    expect(userBTransactions.body).toEqual([])
+
+    const userASummaryResponse = await fetch(`${API_URL}/reports/summary`, {
+      headers: { Authorization: `Bearer ${userAToken}` },
+    })
+    const userBSummaryResponse = await fetch(`${API_URL}/reports/summary`, {
+      headers: { Authorization: `Bearer ${userBToken}` },
+    })
+    const userASummary = (await userASummaryResponse.json()) as {
+      data: { income: number; expense: number; balance: number }
+    }
+    const userBSummary = (await userBSummaryResponse.json()) as {
+      data: { income: number; expense: number; balance: number }
+    }
+    expect(userASummary.data.expense).toBe(validPayload.amount)
+    expect(userBSummary.data).toEqual({ income: 0, expense: 0, balance: 0 })
+
+    const userBPdfResponse = await fetch(
+      `${API_URL}/reports/transactions-pdf`,
+      { headers: { Authorization: `Bearer ${userBToken}` } },
+    )
+    const userBPdf = new TextDecoder('windows-1252').decode(
+      await userBPdfResponse.arrayBuffer(),
+    )
+    expect(userBPdf).toContain('Não existem transações no período.')
+
+    const crossUserUpdate = await sendJson(
+      'PUT',
+      `/transactions/${createdTransaction.data.id}`,
+      validPayload,
+      userBToken,
+    )
+    const crossUserDelete = await fetch(
+      `${API_URL}/transactions/${createdTransaction.data.id}`,
+      { method: 'DELETE', headers: { Authorization: `Bearer ${userBToken}` } },
+    )
+    expect(crossUserUpdate.status).toBe(404)
+    expect(crossUserDelete.status).toBe(404)
+
+    const createdCategoryResponse = await sendJson(
+      'POST',
+      '/categories',
+      { name: 'Categoria privada', type: 'expense' },
+      userAToken,
+    )
+    const createdCategory = (await createdCategoryResponse.json()) as {
+      data: { id: string }
+    }
+    const userBCategories = await fetch(`${API_URL}/categories`, {
+      headers: { Authorization: `Bearer ${userBToken}` },
+    })
+    const userBCategoryBody = (await userBCategories.json()) as {
+      data: Array<{ id: string }>
+    }
+    expect(
+      userBCategoryBody.data.some(
+        (category) => category.id === createdCategory.data.id,
+      ),
+    ).toBe(false)
+
+    const crossUserCategoryUpdate = await sendJson(
+      'PUT',
+      `/categories/${createdCategory.data.id}`,
+      { name: 'Tentativa', type: 'expense' },
+      userBToken,
+    )
+    const crossUserCategoryDelete = await fetch(
+      `${API_URL}/categories/${createdCategory.data.id}`,
+      { method: 'DELETE', headers: { Authorization: `Bearer ${userBToken}` } },
+    )
+    expect(crossUserCategoryUpdate.status).toBe(404)
+    expect(crossUserCategoryDelete.status).toBe(404)
+
+    const demoTransactions = await fetchTransactions()
+    expect(demoTransactions.body).toHaveLength(seedTransactions.length)
+  })
+
+  it('rejeita consultas sem token', async () => {
+    const response = await fetch(`${API_URL}/transactions`)
+
+    expect(response.status).toBe(401)
   })
 })

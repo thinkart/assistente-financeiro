@@ -12,10 +12,11 @@ import { useAuth } from '@/features/auth/auth-context'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { to: '/', label: 'Dashboard', end: true },
+  { to: '/dashboard', label: 'Dashboard', end: true },
   { to: '/transacoes', label: 'Transações', end: false },
   { to: '/categorias', label: 'Categorias', end: false },
   { to: '/relatorios', label: 'Relatórios', end: false },
+  { to: '/perfil', label: 'Perfil', end: false },
 ]
 
 export function AppLayout() {

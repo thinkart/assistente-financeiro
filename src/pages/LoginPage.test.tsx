@@ -19,7 +19,8 @@ const renderLogin = (initialEntry: InitialEntry = '/login') =>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/cadastro" element={<div>Página de cadastro</div>} />
             <Route path="/transacoes" element={<div>Transações</div>} />
-            <Route path="/" element={<div>Início</div>} />
+            <Route path="/dashboard" element={<div>Dashboard</div>} />
+            <Route path="/" element={<div>Início oculto</div>} />
           </Routes>
         </MemoryRouter>
       </AuthProvider>
@@ -102,12 +103,12 @@ describe('LoginPage (AC-006)', () => {
     expect(getStoredToken()).toBe('mock-access-token')
   })
 
-  it('autentica e redireciona para / quando não há origem', async () => {
+  it('autentica e redireciona para /dashboard quando não há origem', async () => {
     renderLogin()
 
     fillCredentials('demo@financas.dev', '123456')
     submit()
 
-    expect(await screen.findByText('Início')).toBeInTheDocument()
+    expect(await screen.findByText('Dashboard')).toBeInTheDocument()
   })
 })

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { reportsQueryKey } from '@/features/reports/query-keys'
 import {
   createCategory,
   deleteCategory,
@@ -18,7 +19,12 @@ export const useCategories = () =>
 const useInvalidateCategories = () => {
   const queryClient = useQueryClient()
 
-  return () => queryClient.invalidateQueries({ queryKey: categoriesQueryKey })
+  return async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: categoriesQueryKey }),
+      queryClient.invalidateQueries({ queryKey: reportsQueryKey }),
+    ])
+  }
 }
 
 export const useCreateCategory = () => {

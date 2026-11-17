@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import { MOCK_ACCESS_TOKEN } from '@/mocks/handlers/auth'
 import { resetCategoryStore } from '@/mocks/handlers/categories'
 import { resetTransactionStore } from '@/mocks/handlers/transactions'
+import { setStoredToken } from './token'
 import { transactions as seedTransactions } from '@/mocks/data'
 import type { TransactionInput } from '@/types'
 import {
@@ -21,6 +23,7 @@ const newTransaction: TransactionInput = {
 
 describe('serviço de transações (AC-003)', () => {
   beforeEach(() => {
+    setStoredToken(MOCK_ACCESS_TOKEN)
     resetCategoryStore()
     resetTransactionStore()
   })
@@ -46,6 +49,7 @@ describe('serviço de transações (AC-003)', () => {
     const created = await createTransaction(newTransaction)
 
     expect(created.id).toBeTruthy()
+    expect(created.amount).toBe(50)
     expect(created.paymentMethod).toBe('debito')
 
     const transactions = await fetchTransactions({ search: 'Nova despesa' })

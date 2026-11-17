@@ -69,7 +69,7 @@ describe('documentação do mock no README (T-009)', () => {
   it('documenta credenciais de demonstração e endpoints mockados', () => {
     expect(readme).toContain('demo@financas.dev')
     expect(readme).toContain('/auth/login')
-    expect(readme).toContain('/reports/summary')
+    expect(readme).toContain('/transactions')
     expect(readme).toContain('src/mocks/handlers')
   })
 })

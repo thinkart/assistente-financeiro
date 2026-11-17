@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { MOCK_ACCESS_TOKEN } from '@/mocks/handlers/auth'
 import { API_URL, UNAUTHORIZED_EVENT, api } from './api'
 import { clearStoredToken, getStoredToken, setStoredToken } from './token'
 
@@ -9,10 +10,11 @@ describe('instância Axios (AC-001)', () => {
   })
 
   it('conversa com a API mockada via axios', async () => {
-    const response = await api.get<{ id: string }[]>('/categories')
+    setStoredToken(MOCK_ACCESS_TOKEN)
+    const response = await api.get<{ data: { id: string }[] }>('/categories')
 
     expect(response.status).toBe(200)
-    expect(response.data.length).toBeGreaterThan(0)
+    expect(response.data.data.length).toBeGreaterThan(0)
   })
 
   it('recebe 401 do mock ao chamar rota protegida sem token', async () => {
@@ -26,10 +28,10 @@ describe('sessão e interceptors (AC-005)', () => {
   it('anexa Authorization Bearer quando há token armazenado', async () => {
     setStoredToken('mock-access-token')
 
-    const response = await api.get<{ email: string }>('/auth/me')
+    const response = await api.get<{ data: { email: string } }>('/auth/me')
 
     expect(response.status).toBe(200)
-    expect(response.data.email).toBe('demo@financas.dev')
+    expect(response.data.data.email).toBe('demo@financas.dev')
   })
 
   it('em 401 de rota autenticada, limpa o token e dispara financas:unauthorized', async () => {

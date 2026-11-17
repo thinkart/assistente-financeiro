@@ -9,6 +9,7 @@ export interface AuthContextValue {
   signIn: (credentials: LoginCredentials) => Promise<User>
   signUp: (payload: RegisterPayload) => Promise<User>
   signOut: () => void
+  updateUser: (user: User) => void
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(

@@ -1,5 +1,10 @@
 node_modules
 dist
+*.log
+/summary.txt
+/test-output.txt
+/tmp_output.txt
+/vitest-output.txt
 /docs/
 /.opencode/
 .env

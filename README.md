@@ -1,195 +1,111 @@
 # Assistente Financeiro
 
-Front-end do projeto **Aplicação Financeira Pessoal**: React 18 + Vite + TypeScript, com Tailwind CSS, Vitest e ESLint/Prettier.
+## Sobre o Projeto
 
-O backend (Flask) ainda está em desenvolvimento. O app está preparado para alternar entre API mockada e API real apenas por variável de ambiente.
+Aplicação de finanças pessoais desenvolvida no Projeto Integrador — Boas Práticas de Desenvolvimento de Software. O front-end usa React, TypeScript e Vite; o backend Flask/SQLite disponível está incompleto e ainda não oferece as rotas financeiras usadas pelo app.
 
-## Requisitos
+**Tema:** Aplicação Financeira Pessoal. **Status:** Em desenvolvimento.
 
-- Node.js 18+ e npm
+## Tecnologias
 
-## Instalação
+React foi escolhido para a interface, Python para a API e SQLite para o armazenamento local do backend.
+
+## Equipe
+
+Felipe Santos de Alencar, Alison Moretto Dias, Giovanna Bastos Rodrigues, Iago Faria dos Santos, Leandro Morais dos Santos, Marcelo Luciano Silva Araujo, Michael de Souza Teixeira e Thamires Santos Muniz.
+
+## Como iniciar
+
+Requisitos: Node.js 18+ e npm.
+
+No Windows, execute `launcher.bat` na pasta de trabalho para iniciar o front em modo demonstração e abrir o navegador. Para executar manualmente:
 
 ```bash
 npm install
+cp .env.example .env
+npm run dev
 ```
 
-## Scripts
+A aplicação fica em `http://127.0.0.1:5173`. O `.env.example` usa `VITE_USE_MOCK=true`. O usuário de demonstração é `demo@financas.dev` com senha `123456`.
 
-| Comando           | Descrição                                            |
-| ----------------- | ---------------------------------------------------- |
-| `npm run dev`     | Sobe o servidor de desenvolvimento do Vite           |
-| `npm run build`   | Type-check (`tsc -b`) + build de produção em `dist/` |
-| `npm run preview` | Pré-visualiza o build de produção                    |
-| `npm test`        | Executa os testes com Vitest + Testing Library       |
-| `npm run lint`    | Executa o ESLint                                     |
-| `npm run format`  | Formata o código com Prettier                        |
+Comandos: `npm test`, `npm run lint`, `npm run build`, `npm run preview` e `npm run format`.
+
+## Pastas
+
+- `src/app`: providers da aplicação.
+- `src/components`: layout, controles compartilhados e componentes UI.
+- `src/features/auth`: cadastro, login, sessão, perfil, máscaras e validações pessoais.
+- `src/features/dashboard`: KPIs, gráficos e últimas transações.
+- `src/features/transactions`: formulários, filtros, tabela e consultas de transações.
+- `src/features/categories`: formulários, badges, cores e consultas de categorias.
+- `src/features/reports`: filtros, gráficos, tabela e chaves de consulta.
+- `src/pages`: composição das rotas e telas.
+- `src/services`: cliente HTTP e serviços de autenticação, categorias, transações e relatórios.
+- `src/mocks`: worker MSW, handlers e dados da demonstração.
+- `src/types`: tipos compartilhados; `src/utils` e `src/lib`: formatadores e utilidades.
+- `src/styles`: tokens de tema e estilos globais.
 
 ## Rotas
 
-| Rota          | Acesso  | Descrição                    |
-| ------------- | ------- | ---------------------------- |
-| `/login`      | Pública | Login com e-mail e senha     |
-| `/cadastro`   | Pública | Criação de conta             |
-| `/`           | Privada | Dashboard (resumo do mês)    |
-| `/transacoes` | Privada | CRUD + filtros de transações |
-| `/categorias` | Privada | CRUD de categorias           |
-| `/relatorios` | Privada | Relatórios por categoria     |
-
-As rotas privadas ficam atrás de `RequireAuth` + `AppLayout`; sem sessão, redirecionam para `/login` preservando a rota de origem.
-
-## Variáveis de ambiente
-
-Copie o arquivo de exemplo e ajuste conforme necessário:
-
-```bash
-cp .env.example .env
-```
-
-| Variável        | Padrão                  | Descrição                                                                   |
-| --------------- | ----------------------- | --------------------------------------------------------------------------- |
-| `VITE_API_URL`  | `http://127.0.0.1:5000` | Base URL do backend Flask                                                   |
-| `VITE_USE_MOCK` | `true`                  | `true` usa a API mockada; `false` aponta as requisições para `VITE_API_URL` |
-
-O arquivo `.env` é ignorado pelo Git; use sempre o `.env.example` como referência dos valores esperados.
+| Rota | Tela |
+| --- | --- |
+| `/login` | Login |
+| `/cadastro` | Cadastro |
+| `/` | Redireciona para `/dashboard` |
+| `/dashboard` | Dashboard privado |
+| `/transacoes` | Transações privadas |
+| `/categorias` | Categorias privadas |
+| `/relatorios` | Relatórios privados |
+| `/perfil` | Perfil e exportações |
+| `/perfil/editar` | Edição da conta |
 
 ## API mockada (MSW)
 
-Com `VITE_USE_MOCK=true` (padrão do `.env.example`), **todas as chamadas são interceptadas pelo MSW** — nenhuma requisição real ao Flask é feita:
+Para configurar o modo mock manualmente, copie `.env.example` para `.env`; `VITE_USE_MOCK=true` inicia `src/mocks/browser.ts` com os handlers em `src/mocks/handlers`. As rotas mockadas seguem o contrato HTTP usado pelo front, incluindo `/auth/login`, `/transactions`, categorias e relatórios.
 
-```bash
-cp .env.example .env
-```
+A demonstração persiste usuários, tokens, categorias e transações no armazenamento local do navegador, separados por usuário. Contas novas começam sem transações; apenas a conta demo recebe dados financeiros fictícios. Categorias iniciais ficam disponíveis para novas contas. O mock não envia dados ao backend.
 
-- O worker é registrado por `public/mockServiceWorker.js` e iniciado em `src/main.tsx` (`src/mocks/browser.ts`).
-- Handlers em `src/mocks/handlers/` cobrem o contrato: auth (`POST /auth/register`, `POST /auth/login`, `GET /auth/me`), categorias (CRUD), transações (CRUD + filtros `startDate`, `endDate`, `categoryId`, `type`, `minAmount`, `maxAmount`) e relatórios (`GET /reports/summary`, `GET /reports/by-category`).
-- Dados fake em `src/mocks/data/` (8 categorias e 30 transações nos últimos 6 meses); usuário de demonstração: **demo@financas.dev / 123456**.
-- A latência simulada é de 300 ms em dev e 0 nos testes (`src/mocks/delay.ts`); token ausente/inválido nas rotas protegidas responde **401**.
-- Para apontar para a API real, defina `VITE_USE_MOCK=false` no `.env` — o Axios (`src/services/api.ts`) passa a usar `VITE_API_URL` (ex.: `http://127.0.0.1:5000`, docs em `/apidocs/`).
-- Nos testes, o MSW roda via `src/mocks/server.ts` com `onUnhandledRequest: 'error'`, garantindo que nenhuma chamada escape do contrato.
+## Integração real
+
+`VITE_API_URL` define a base do Axios (padrão `http://127.0.0.1:5000`). Para tentar uma API real, use `VITE_USE_MOCK=false`. O backend atualmente disponível registra somente uma rota de exemplo e não implementa autenticação, categorias, transações ou relatórios; portanto, esses fluxos precisam dos endpoints correspondentes antes de serem usados sem MSW. Os relatórios mockados agregam as transações do próprio usuário.
 
 ## Autenticação
 
-Rotas e fluxo de sessão:
-
-- `/login` e `/cadastro` são públicas; a área privada (`/`) exige sessão e redireciona para `/login` preservando a rota de origem (`RequireAuth`).
-- O token fica em `localStorage` na chave `financas-token`; no boot, a sessão é restaurada via `GET /auth/me`.
-- O Axios anexa `Authorization: Bearer <token>` e, em **401** de rota autenticada, limpa a sessão e volta ao login.
-- Usuário de demonstração: **demo@financas.dev / 123456**.
-- Toasts de feedback (Sonner) respeitam o tema claro/escuro.
-- Testes do fluxo em `src/features/auth/` e `src/pages/`.
+`AuthProvider` restaura o token `financas-token` por `GET /auth/me`; `RequireAuth` protege as rotas privadas. O Axios envia `Authorization: Bearer` e encerra a sessão em respostas 401. O perfil atualiza os dados pessoais; CPF e telefone usam validação e formatação compartilhadas.
 
 ## Dashboard
 
-A rota `/` (área privada) mostra o **Resumo financeiro do mês**:
-
-- Cards de **Receitas**, **Despesas** e **Saldo** do mês atual, via `GET /reports/summary?startDate&endDate` (período calculado com **date-fns**).
-- Gráfico **Resumo Financeiro** com **Recharts**: linhas de **Receita** (azul), **Despesa** (vermelha) e **Saldo do mês** (verde) dos últimos 6 meses, agregados no cliente a partir de `GET /transactions`; as cores vêm dos tokens `--chart-income`, `--chart-expense` e `--chart-balance` e atualizam junto com o tema.
-- Card **Últimas transações** com as 5 mais recentes (sinal e tokens por tipo) e link **Ver todas** → `/transacoes`.
-- Estados de loading, erro (com "Tentar novamente") e vazio.
+O **Resumo financeiro do mês** mostra receitas, despesas e saldo, calculados no cliente a partir de `/transactions`, além do gráfico Recharts dos últimos seis meses e das **Últimas transações**. Os períodos mensais usam `date-fns`.
 
 ## Transações
 
-A rota `/transacoes` (área privada) entrega o CRUD completo:
-
-- Lista em tabela no desktop e em cards no mobile (≤720px), com linhas zebradas e valores com sinal (`text-income`/`text-expense`).
-- Filtros: **Buscar** (descrição), **Tipo**, **Categoria** e **Período** (De/Até), com botão **Aplicar filtros**; paginação client-side de **10 itens** (Anterior/Próxima).
-- **Nova transação** abre um modal (Descrição, Valor, Tipo, Categoria, Método de pagamento, Data e Repetição — por enquanto apenas "Não repetir") com **Salvar**, **Salvar e adicionar outra** e **Cancelar**.
-- **Editar** abre o mesmo modal pré-preenchido; **Excluir** pede confirmação em diálogo.
-- Estados de loading, erro (com "Tentar novamente") e vazio; feedback via toasts (Sonner).
-- Dados via **React Query** (`src/features/transactions/use-transactions.ts`) consumindo os serviços de `src/services/`.
+Em `/transacoes`, a tabela vira cartões em telas estreitas. Os filtros de busca, tipo, categoria e período são aplicados por **Aplicar filtros**; as categorias acompanham o tipo escolhido. A paginação mostra 10 itens por página. Os modais permitem criar, editar e excluir, com as ações **Salvar** e **Salvar e adicionar outra**. O estado das consultas usa React Query.
 
 ## Categorias
 
-A rota `/categorias` (área privada) entrega o CRUD de categorias:
-
-- Lista com **badge colorido (Nome), Tipo e Ações (Editar/Excluir)** em tabela no desktop e cards no mobile.
-- Modal de criar/editar (Nome + Tipo Receita/Despesa) com validação zod e toasts de sucesso/erro.
-- **Exclusão protegida**: categorias **em uso** por transações não podem ser excluídas — o mock responde 400 ("Categoria em uso por N transação(ões)") e o diálogo exibe a mensagem.
-- Cores: 8 tokens semânticos (`--category-1..8` no `globals.css`/Tailwind) resolvidos de forma determinística em `src/features/categories/colors.ts` (mapa + fallback por hash) e exibidos via `CategoryBadge` — também aplicados na tabela de transações.
-- Estados de loading, erro (com "Tentar novamente") e vazio.
+Em `/categorias`, categorias podem ser criadas, editadas e excluídas. `CategoryBadge` usa as cores determinísticas de `colors.ts`; categorias em uso por transações não podem ser removidas.
 
 ## Relatórios
 
-A rota `/relatorios` (área privada) analisa os valores por categoria:
-
-- Filtros de **Período** (De/Até) e **Tipo** (**Despesas** padrão / Receitas) com **Aplicar filtros**; período vazio considera todo o histórico.
-- Cards de Receitas/Despesas/Saldo do período filtrado (reutilizando os `KpiCards` do dashboard).
-- Gráfico de **barras horizontais** por categoria (Recharts; cor por tipo lida das CSS variables) e tabela de **Detalhamento por categoria** (total em BRL e percentual).
-- Dados via `GET /reports/by-category` (e `GET /reports/summary` para os cards); estados de loading, erro (com "Tentar novamente") e vazio ("Nenhum dado no período.").
-
-## Navegação e layout
-
-- Header com nome do usuário, `ThemeToggle` e **Sair** em todas as telas privadas.
-- Sidebar com Dashboard, Transações, Categorias e Relatórios a partir de 640px (`sm`), destacando a rota ativa.
-- Abaixo de 640px a navegação vira um **menu no header**: botão "Abrir menu de navegação" com `aria-expanded`, destino ativo marcado com `aria-current="page"` e fechamento ao navegar ou com `Esc`.
-- Tabelas viram listas de cards abaixo de 720px; filtros e KPIs usam grids mobile-first.
-
-## Acessibilidade
-
-- `eslint-plugin-jsx-a11y` com as regras recomendadas no flat config (`eslint.config.js`).
-- Testes automatizados com `vitest-axe` (`toHaveNoViolations`) nas páginas Login, Dashboard, Transações, Categorias e Relatórios (`src/pages/*.a11y.test.tsx`), com o helper `src/test/a11y.ts`.
-- A regra de contraste de cor fica **fora** desses testes (o jsdom não computa cores) — verificação manual nos dois temas.
-- Labels associados em todos os campos e foco visível (`focus-visible:ring-2` com tokens) em controles e links de navegação.
+Em `/relatorios`, filtros por período e tipo atualizam KPIs, gráfico de barras horizontais e tabela por categoria. Quando não há dados, a tela informa **Nenhum dado no período.** No perfil, PDF e CSV são ações independentes: o PDF é gerado com jsPDF; o CSV usa UTF-8 com BOM, delimitador `;` e valores numéricos brasileiros.
 
 ## Tema claro/escuro
 
-O app inicia seguindo o **tema do sistema** (`prefers-color-scheme`). A cada toque no botão de sol/lua do header (`ThemeToggle`), o tema alterna entre **claro** e **escuro**, e a escolha passa a valer para as próximas visitas.
-
-- Sem escolha salva, o tema acompanha mudanças do sistema operacional em tempo real; após o primeiro toque, ele fica fixo no valor escolhido (não reage mais ao SO).
-- A escolha é persistida em `localStorage` na chave `financas-theme` (`light` ou `dark`); um valor ausente ou inválido cai no modo sistema. Para voltar ao modo sistema depois do primeiro toque, é preciso limpar a chave — não há essa opção na interface.
-- O tema é aplicado pela classe `dark` no `<html>` (estratégia `class` do Tailwind).
-- Um script inline no `index.html` aplica o tema antes do bundle carregar, evitando o flash de tema errado (FOUC).
-- As cores são **tokens semânticos** definidos em `src/styles/globals.css` e mapeados no `tailwind.config.ts` — use apenas tokens como `bg-background`, `text-foreground`, `bg-card`, `border-border`, `text-income` e `text-expense`; nunca cores fixas (`bg-white`, `text-gray-900`, hex/rgb).
-- Os testes que cobrem o tema ficam em `src/test/tema-claro-escuro.test.ts`, `src/app/providers/ThemeProvider.test.tsx` e `src/components/ThemeToggle.test.tsx`.
+`ThemeToggle` alterna a cada toque entre claro e escuro; a preferência `financas-theme` é persistida. Sem escolha salva, usa o tema do sistema. Um script em `index.html` aplica o tema antes do bundle para evitar FOUC. Os estilos usam tokens semânticos como `bg-background` e `text-foreground`.
 
 ## Design system
 
-Os componentes base vêm do [shadcn/ui](https://ui.shadcn.com) na versão compatível com Tailwind v3 (`shadcn@2.3.0`) e ficam em `src/components/ui/`:
+Os componentes compartilhados ficam em `src/components/ui` (Button, Input, Card, Dialog, Dropdown Menu, Table e Tabs). A configuração compatível com shadcn@2.3.0 é mantida em `components.json`; `src/lib/utils` combina `clsx` e `tailwind-merge`. O plugin `tailwindcss-animate` fornece as animações dos componentes.
 
-| Componente                                               | Arquivo                   |
-| -------------------------------------------------------- | ------------------------- |
-| Button, Input, Card, Dialog, Table, Dropdown Menu e Tabs | `src/components/ui/*.tsx` |
+## Acessibilidade
 
-- O `components.json` guarda a configuração do shadcn (aliases `@/components`, `@/components/ui` e `@/lib/utils`).
-- O utilitário `cn()` em `src/lib/utils.ts` combina `clsx` + `tailwind-merge` e é usado por todos os componentes.
-- Os componentes usam apenas **tokens semânticos** (`bg-card`, `bg-popover`, `text-muted-foreground`, `focus:bg-accent`, etc.); bordas usam o token global (`* { @apply border-border }` no `globals.css`).
-- Animações (abrir/fechar de Dialog e Dropdown) vêm do plugin `tailwindcss-animate`.
-- Para adicionar novos componentes: `npx shadcn@2.3.0 add <componente>` e ajuste qualquer cor fixa (ex.: `bg-black/80`) para tokens, mantendo o padrão do projeto.
-
-## Deploy
-
-O site é publicado em `https://<host>/sites/Senac/PI-2026/assistente-financeiro/`. Por isso o build de produção usa esse caminho como `base` (ver `DEPLOY_BASE` no `vite.config.ts`); em desenvolvimento o app continua em `/`.
-
-1. Gere o build: `npm run build`.
-2. Envie **todo o conteúdo** da pasta `dist/` (incluindo `assets/`, `.htaccess` e `mockServiceWorker.js`) para a pasta do servidor.
-3. Para testar localmente com o mesmo caminho: `npm run preview` e abra `http://localhost:4173/sites/Senac/PI-2026/assistente-financeiro/`.
-
-O `public/.htaccess` faz o fallback de SPA no Apache (refresh em `/transacoes`, `/categorias`, etc. volta para o `index.html`). Se o host não for Apache, configure um rewrite equivalente para `index.html`.
+Os formulários têm rótulos associados e mensagens de validação; testes `vitest-axe` cobrem as telas de login, dashboard, transações, categorias e relatórios. A navegação e os controles mantêm estados de foco visíveis.
 
 ## Entregáveis
 
-- [x] Projeto roda com `npm install && npm run dev`
-- [x] Todas as telas navegáveis: Login/Cadastro, Dashboard, Transações, Categorias e Relatórios
-- [x] API 100% mockada via MSW (nenhuma chamada real ao Flask)
-- [x] README com execução, alternância mock/API real e credenciais de demonstração
-- [x] Tipos TypeScript em `src/types/` refletindo o contrato
-- [x] Autenticação com token persistido e rotas privadas protegidas
-- [x] Tema claro/escuro/sistema sem FOUC em todas as telas
-
-## Estrutura
-
-```
-src/
-├── app/          # configuração de rotas e providers
-├── components/   # componentes reutilizáveis
-├── features/     # auth, transactions, categories, reports
-├── hooks/
-├── services/     # api.ts (axios) + endpoints por domínio
-├── mocks/        # handlers MSW, dados fake, browser/server
-├── types/        # tipos TS derivados do contrato da API
-├── styles/       # globals.css com tokens
-├── utils/
-├── pages/
-└── main.tsx
-```
+- [x] Telas de login, cadastro, dashboard, transações, categorias, relatórios e perfil.
+- [x] CRUD e filtros de transações e categorias.
+- [x] Tema claro/escuro com preferência persistida.
+- [x] Dados separados por usuário no modo MSW.
+- [x] Exportação de transações em PDF e CSV.
+- [x] Testes, lint e build de produção.

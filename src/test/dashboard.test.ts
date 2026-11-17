@@ -24,7 +24,8 @@ describe('documentação da feature de dashboard no README (T-008)', () => {
   it('documenta os KPIs, o gráfico e as últimas transações', () => {
     expect(readme).toContain('## Dashboard')
     expect(readme).toContain('Resumo financeiro do mês')
-    expect(readme).toContain('/reports/summary')
+    expect(readme).toContain('calculados no cliente')
+    expect(readme).toContain('/transactions')
     expect(readme).toContain('Recharts')
     expect(readme).toContain('date-fns')
     expect(readme).toContain('Últimas transações')

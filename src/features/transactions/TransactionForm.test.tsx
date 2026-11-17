@@ -75,7 +75,6 @@ describe('TransactionForm (AC-008)', () => {
       'Categoria',
       'Método de pagamento',
       'Data',
-      'Repetição',
     ]) {
       expect(screen.getByLabelText(label)).toBeInTheDocument()
     }
@@ -85,9 +84,6 @@ describe('TransactionForm (AC-008)', () => {
       screen.getByRole('button', { name: 'Salvar e adicionar outra' }),
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Cancelar' })).toBeInTheDocument()
-    expect(
-      screen.getByRole('option', { name: 'Não repetir' }),
-    ).toBeInTheDocument()
   })
 
   it('valida os campos obrigatórios', async () => {
@@ -95,7 +91,9 @@ describe('TransactionForm (AC-008)', () => {
 
     clickSave()
 
-    expect(await screen.findByText('Informe a descrição')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Informe a descrição (mínimo 3 caracteres)'),
+    ).toBeInTheDocument()
     expect(screen.getByText('Informe o valor')).toBeInTheDocument()
     expect(screen.getByText('Selecione o tipo')).toBeInTheDocument()
     expect(screen.getByText('Selecione a categoria')).toBeInTheDocument()
@@ -168,6 +166,20 @@ describe('TransactionForm (AC-008)', () => {
         expect.objectContaining({ description: 'Mercado atualizado' }),
       )
     })
+  })
+
+  it('filtra categorias ao trocar o tipo e limpa uma categoria incompatível', () => {
+    renderForm()
+
+    fill('Tipo', 'expense')
+    fill('Categoria', 'alimentacao')
+    fill('Tipo', 'income')
+
+    expect(screen.getByLabelText('Categoria')).toHaveValue('')
+    expect(screen.getByRole('option', { name: 'Salário' })).toBeInTheDocument()
+    expect(
+      screen.queryByRole('option', { name: 'Alimentação' }),
+    ).not.toBeInTheDocument()
   })
 
   it('mostra erro e mantém o modal quando o salvamento falha', async () => {

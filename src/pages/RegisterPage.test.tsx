@@ -16,7 +16,8 @@ const renderRegister = () =>
           <Routes>
             <Route path="/cadastro" element={<RegisterPage />} />
             <Route path="/login" element={<div>Página de login</div>} />
-            <Route path="/" element={<div>Início</div>} />
+            <Route path="/dashboard" element={<div>Dashboard</div>} />
+            <Route path="/" element={<div>Início oculto</div>} />
           </Routes>
         </MemoryRouter>
       </AuthProvider>
@@ -31,7 +32,7 @@ const submit = () => {
   fireEvent.click(screen.getByRole('button', { name: 'Criar conta' }))
 }
 
-const fillValidForm = (email: string, cpf = '98765432100') => {
+const fillValidForm = (email: string, cpf = '11144477735') => {
   fill('Nome completo', 'Nova Pessoa')
   fill('CPF', cpf)
   fill('E-mail', email)
@@ -68,6 +69,20 @@ describe('RegisterPage (AC-007)', () => {
     ).toBeInTheDocument()
   })
 
+  it('aplica máscaras de CPF e telefone ao digitar ou colar os números', () => {
+    renderRegister()
+
+    fireEvent.change(screen.getByLabelText('CPF'), {
+      target: { value: '52998224725' },
+    })
+    fireEvent.change(screen.getByLabelText('Telefone'), {
+      target: { value: '11923456789' },
+    })
+
+    expect(screen.getByLabelText('CPF')).toHaveValue('529.982.247-25')
+    expect(screen.getByLabelText('Telefone')).toHaveValue('(11) 92345-6789')
+  })
+
   it('valida inline todos os campos', async () => {
     renderRegister()
 
@@ -83,11 +98,13 @@ describe('RegisterPage (AC-007)', () => {
       await screen.findByText('Informe o nome completo (mínimo 3 caracteres)'),
     ).toBeInTheDocument()
     expect(
-      screen.getByText('Informe um CPF com 11 dígitos'),
+      screen.getByText('O CPF deve conter 11 dígitos.'),
     ).toBeInTheDocument()
     expect(screen.getByText('Informe um e-mail válido')).toBeInTheDocument()
     expect(
-      screen.getByText('Informe um telefone com DDD (10 ou 11 dígitos)'),
+      screen.getByText(
+        'Informe um telefone válido com DDD, contendo 10 ou 11 dígitos.',
+      ),
     ).toBeInTheDocument()
     expect(
       screen.getByText('A senha deve ter ao menos 6 caracteres'),
@@ -95,21 +112,21 @@ describe('RegisterPage (AC-007)', () => {
     expect(screen.getByText('As senhas não conferem')).toBeInTheDocument()
   })
 
-  it('cria a conta, autentica e redireciona para /', async () => {
+  it('cria a conta, autentica e redireciona para /dashboard', async () => {
     renderRegister()
     fillValidForm(`cad-${Date.now()}@financas.dev`)
     submit()
 
-    expect(await screen.findByText('Início')).toBeInTheDocument()
+    expect(await screen.findByText('Dashboard')).toBeInTheDocument()
     expect(
       await screen.findByText('Conta criada com sucesso!'),
     ).toBeInTheDocument()
-    expect(getStoredToken()).toBe('mock-access-token')
+    expect(getStoredToken()).toMatch(/^mock-access-token-/)
   })
 
   it('mostra a mensagem do backend para e-mail duplicado', async () => {
     renderRegister()
-    fillValidForm('demo@financas.dev', '11122233344')
+    fillValidForm('demo@financas.dev', '52998224725')
     submit()
 
     expect(await screen.findByRole('alert')).toHaveTextContent(

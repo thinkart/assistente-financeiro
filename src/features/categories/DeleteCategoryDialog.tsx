@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import type { Category } from '@/types'
+import { getApiErrorMessage } from '@/services/api'
 
 interface DeleteCategoryDialogProps {
   open: boolean
@@ -46,14 +46,9 @@ export function DeleteCategoryDialog({
       onOpenChange(false)
     } catch (error) {
       setIsDeleting(false)
-
-      const message =
-        axios.isAxiosError<{ message?: string }>(error) &&
-        error.response?.data?.message
-          ? error.response.data.message
-          : 'Não foi possível excluir a categoria'
-
-      setSubmitError(message)
+      setSubmitError(
+        getApiErrorMessage(error, 'Não foi possível excluir a categoria'),
+      )
     }
   }
 

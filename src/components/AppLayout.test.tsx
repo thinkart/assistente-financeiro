@@ -7,7 +7,7 @@ import { RequireAuth } from '@/features/auth/RequireAuth'
 import { getStoredToken, setStoredToken } from '@/services/token'
 import { AppLayout } from './AppLayout'
 
-const renderLayout = (initialEntry = '/') => {
+const renderLayout = (initialEntry = '/dashboard') => {
   setStoredToken('mock-access-token')
 
   return render(
@@ -17,7 +17,10 @@ const renderLayout = (initialEntry = '/') => {
           <Routes>
             <Route element={<RequireAuth />}>
               <Route element={<AppLayout />}>
-                <Route path="/" element={<div>Conteúdo do dashboard</div>} />
+                <Route
+                  path="/dashboard"
+                  element={<div>Conteúdo do dashboard</div>}
+                />
                 <Route
                   path="/transacoes"
                   element={<div>Conteúdo de transações</div>}
@@ -63,7 +66,9 @@ describe('AppLayout (AC-009)', () => {
   it('renderiza o conteúdo da rota filha no main', async () => {
     renderLayout()
 
-    expect(await screen.findByText('Conteúdo do dashboard')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Conteúdo do dashboard'),
+    ).toBeInTheDocument()
   })
 
   it('Sair limpa a sessão e volta para /login', async () => {
@@ -97,7 +102,7 @@ describe('AppLayout — menu mobile (AC-003)', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'true')
   })
 
-  it('oferece os quatro destinos de navegação', async () => {
+  it('oferece os cinco destinos na ordem definida', async () => {
     renderLayout()
     await screen.findByText('Demo')
     await openMobileMenu()
@@ -110,6 +115,16 @@ describe('AppLayout — menu mobile (AC-003)', () => {
     ]) {
       expect(screen.getByRole('menuitem', { name: label })).toBeInTheDocument()
     }
+
+    expect(
+      screen.getAllByRole('menuitem').map((item) => item.textContent),
+    ).toEqual([
+      'Dashboard',
+      'Transações',
+      'Categorias',
+      'Relatórios',
+      'Perfil',
+    ])
   })
 
   it('destaca a rota ativa no menu', async () => {

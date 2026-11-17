@@ -81,16 +81,16 @@ describe('AuthProvider (AC-004)', () => {
     await act(async () => {
       await result.current.signUp({
         name: 'Nova Pessoa',
-        cpf: '98765432100',
+        cpf: '11144477735',
         email,
-        phone: '(11) 98888-7777',
+        phone: '11988887777',
         password: '123456',
       })
     })
 
     expect(result.current.user?.email).toBe(email)
     expect(result.current.isAuthenticated).toBe(true)
-    expect(getStoredToken()).toBe('mock-access-token')
+    expect(getStoredToken()).toMatch(/^mock-access-token-/)
   })
 
   it('signOut limpa o usuário e o token', async () => {

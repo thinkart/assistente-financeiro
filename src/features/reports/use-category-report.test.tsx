@@ -2,8 +2,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { MOCK_ACCESS_TOKEN } from '@/mocks/handlers/auth'
 import { resetCategoryStore } from '@/mocks/handlers/categories'
 import { resetTransactionStore } from '@/mocks/handlers/transactions'
+import { setStoredToken } from '@/services/token'
 import { useCategoryReport } from './use-category-report'
 
 const createWrapper = () => {
@@ -18,6 +20,7 @@ const createWrapper = () => {
 
 describe('hook useCategoryReport (AC-002)', () => {
   beforeEach(() => {
+    setStoredToken(MOCK_ACCESS_TOKEN)
     resetTransactionStore()
     resetCategoryStore()
   })

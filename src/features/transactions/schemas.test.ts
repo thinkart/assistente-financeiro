@@ -22,7 +22,6 @@ const validForm = {
   categoryId: 'alimentacao',
   paymentMethod: 'debito',
   date: '2026-10-01',
-  repetition: 'none',
 }
 
 describe('schema do formulário de transação (AC-008)', () => {
@@ -33,13 +32,25 @@ describe('schema do formulário de transação (AC-008)', () => {
     ).toBe(true)
   })
 
-  it('exige descrição', () => {
-    const result = transactionSchema.safeParse({
-      ...validForm,
-      description: '  ',
-    })
+  it('exige descrição com pelo menos 3 caracteres', () => {
+    const message = 'Informe a descrição (mínimo 3 caracteres)'
 
-    expect(messagesOf(result)).toContain('Informe a descrição')
+    expect(
+      messagesOf(
+        transactionSchema.safeParse({ ...validForm, description: '  ' }),
+      ),
+    ).toContain(message)
+    expect(
+      messagesOf(
+        transactionSchema.safeParse({ ...validForm, description: 'ab' }),
+      ),
+    ).toContain(message)
+  })
+
+  it('aceita descrição com exatamente 3 caracteres', () => {
+    expect(
+      transactionSchema.safeParse({ ...validForm, description: 'abc' }).success,
+    ).toBe(true)
   })
 
   it('exige valor maior que zero', () => {
@@ -77,14 +88,6 @@ describe('schema do formulário de transação (AC-008)', () => {
         transactionSchema.safeParse({ ...validForm, date: '15/09/2026' }),
       ),
     ).toContain('Informe uma data válida')
-  })
-
-  it('aceita apenas a repetição "Não repetir" por enquanto', () => {
-    expect(
-      messagesOf(
-        transactionSchema.safeParse({ ...validForm, repetition: 'monthly' }),
-      ),
-    ).toContain('Repetição ainda não suportada')
   })
 
   it('exporta as opções de tipo e método com rótulos em pt-BR', () => {

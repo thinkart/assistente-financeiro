@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { getApiErrorMessage } from '@/services/api'
 import type { Category, CategoryInput } from '@/types'
 import {
   categorySchema,
@@ -58,7 +59,9 @@ export function CategoryForm({
   }, [open, category, reset])
 
   const handleOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen) setSubmitError(null)
+    if (!nextOpen) {
+      setSubmitError(null)
+    }
     onOpenChange(nextOpen)
   }
 
@@ -68,8 +71,10 @@ export function CategoryForm({
     try {
       await onSubmit({ name: data.name, type: data.type })
       onOpenChange(false)
-    } catch {
-      setSubmitError('Não foi possível salvar a categoria')
+    } catch (error: unknown) {
+      setSubmitError(
+        getApiErrorMessage(error, 'Não foi possível salvar a categoria'),
+      )
     }
   }
 

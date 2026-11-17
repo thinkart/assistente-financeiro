@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { getApiErrorMessage } from '@/services/api'
 import {
   Dialog,
   DialogContent,
@@ -43,9 +44,11 @@ export function DeleteTransactionDialog({
       await onConfirm()
       setIsDeleting(false)
       onOpenChange(false)
-    } catch {
+    } catch (error) {
       setIsDeleting(false)
-      setSubmitError('Não foi possível excluir a transação')
+      setSubmitError(
+        getApiErrorMessage(error, 'Não foi possível excluir a transação'),
+      )
     }
   }
 
